@@ -71,14 +71,29 @@ const Index = () => {
   };
 
   const handleDownload = () => {
-    if (!reorderedPdfUrl) return;
+    if (!reorderedPdfUrl || !pdfFile) {
+      toast({
+        title: "Error",
+        description: "No processed PDF available to download.",
+        variant: "destructive",
+      });
+      return;
+    }
     
-    const a = document.createElement("a");
-    a.href = reorderedPdfUrl;
-    a.download = pdfFile ? `reordered-${pdfFile.name}` : "reordered-document.pdf";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // Create link element
+    const link = document.createElement("a");
+    link.href = reorderedPdfUrl;
+    link.download = `reordered-${pdfFile.name}`;
+    
+    // Append to body and trigger download
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(reorderedPdfUrl); // Free up memory
+    }, 200);
     
     toast({
       title: "Download started",
