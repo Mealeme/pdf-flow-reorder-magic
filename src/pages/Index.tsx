@@ -123,6 +123,7 @@ const Index = () => {
     { value: "4", label: "4-page grouping" },
     { value: "6", label: "6-page grouping" },
     { value: "9", label: "9-page grouping (Default)" },
+    { value: "12", label: "12-page grouping" },
     { value: "16", label: "16-page grouping" },
   ];
 

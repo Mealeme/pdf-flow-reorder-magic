@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Menubar, MenubarMenu, MenubarTrigger, MenubarContent, MenubarItem } from "@/components/ui/menubar";
+import { Menubar, MenubarMenu, MenubarTrigger, MenubarContent, MenubarItem, MenubarSub, MenubarSubTrigger, MenubarSubContent } from "@/components/ui/menubar";
 import { FileText, Download, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -24,7 +24,18 @@ const Navigation: React.FC<NavigationProps> = ({ onMenuClick }) => {
           <MenubarMenu>
             <MenubarTrigger>Services</MenubarTrigger>
             <MenubarContent>
-              <MenubarItem>PDF Reordering</MenubarItem>
+              <MenubarSub>
+                <MenubarSubTrigger>PDF Reordering</MenubarSubTrigger>
+                <MenubarSubContent>
+                  <MenubarItem>1-page sequence</MenubarItem>
+                  <MenubarItem>2-page sequence</MenubarItem>
+                  <MenubarItem>4-page sequence</MenubarItem>
+                  <MenubarItem>6-page sequence</MenubarItem>
+                  <MenubarItem>9-page sequence</MenubarItem>
+                  <MenubarItem>12-page sequence</MenubarItem>
+                  <MenubarItem>16-page sequence</MenubarItem>
+                </MenubarSubContent>
+              </MenubarSub>
               <MenubarItem>PDF Compression</MenubarItem>
               <MenubarItem>PDF Merge</MenubarItem>
             </MenubarContent>

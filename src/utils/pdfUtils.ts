@@ -1,4 +1,3 @@
-
 import { PDFDocument } from 'pdf-lib';
 
 /**
@@ -19,6 +18,8 @@ export function generateCustomOrder(nPages: number, sequenceType: string): numbe
       return generateSequence6(nPages);
     case "9":
       return generateFixedCustomOrder(nPages); // Our original sequence for 9
+    case "12":
+      return generateSequence12(nPages); // New 12-page sequence
     case "16":
       return generateSequence16(nPages);
     default:
@@ -112,6 +113,40 @@ function generateSequence6(nPages: number): number[] {
         finalOrder.push(page);
       }
     }
+  }
+  
+  return finalOrder;
+}
+
+// Sequence for option 12 (12-page grouping)
+function generateSequence12(nPages: number): number[] {
+  const finalOrder: number[] = [];
+  
+  // Repeat logic in 12-page blocks
+  for (let blockStart = 0; blockStart < nPages; blockStart += 12) {
+    // First 6 odd pages from block
+    const oddPart: number[] = [];
+    for (let i = 0; i < 12; i++) {
+      const page = blockStart + i;
+      if (page < nPages && i % 2 === 0) {
+        oddPart.push(page);
+        if (oddPart.length === 6) break;
+      }
+    }
+
+    // Even part: follow custom pattern using relative page positions
+    // Using 5, 3, 1, 11, 9, 7 (zero-indexed: these are 6, 4, 2, 12, 10, 8 in one-indexed)
+    const evenPattern = [5, 3, 1, 11, 9, 7];
+    const evenPart: number[] = [];
+    for (const offset of evenPattern) {
+      const page = blockStart + offset;
+      if (page < nPages && offset % 2 === 1) {
+        evenPart.push(page);
+      }
+    }
+
+    // Combine and add to final sequence
+    finalOrder.push(...oddPart, ...evenPart);
   }
   
   return finalOrder;
