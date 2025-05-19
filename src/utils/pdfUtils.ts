@@ -1,3 +1,4 @@
+
 import { PDFDocument } from 'pdf-lib';
 
 /**
@@ -101,21 +102,33 @@ function generateSequence4(nPages: number): number[] {
   return finalOrder;
 }
 
-// Sequence for option 6 (6-page grouping)
+// Sequence for option 6 (6-page grouping) - Updated to match the exact pattern provided
 function generateSequence6(nPages: number): number[] {
   const finalOrder: number[] = [];
   
-  for (let blockStart = 0; blockStart < nPages; blockStart += 6) {
-    const pattern = [0, 5, 1, 4, 2, 3]; // Custom 6-page pattern
-    for (const offset of pattern) {
-      const page = blockStart + offset;
-      if (page < nPages) {
+  // Process in 12-page blocks to match the pattern [1,3,5,7,9,11,6,4,2,12,10,8]
+  for (let blockStart = 1; blockStart <= nPages; blockStart += 12) {
+    // First add odd pages (1,3,5,7,9,11 relative to block)
+    const oddPart: number[] = [];
+    for (let i = 0; i < 12; i += 2) {
+      const page = blockStart + i;
+      if (page <= nPages) {
+        oddPart.push(page);
+      }
+    }
+    
+    // Then add even pages in reverse pairs (6,4,2,12,10,8 relative to block)
+    const evenPattern = [6, 4, 2, 12, 10, 8];
+    for (const offset of evenPattern) {
+      const page = blockStart + offset - 1; // Convert to 0-indexed
+      if (page <= nPages) {
         finalOrder.push(page);
       }
     }
   }
   
-  return finalOrder;
+  // Convert from 1-indexed to 0-indexed for PDF library
+  return finalOrder.map(page => page - 1);
 }
 
 // Sequence for option 16 (16-page grouping)
