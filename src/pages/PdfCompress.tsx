@@ -1,8 +1,7 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Compress, Upload } from "lucide-react";
+import { Download, Compass, Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import FileUploader from "@/components/FileUploader";
@@ -192,7 +191,7 @@ const PdfCompress = () => {
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     disabled={isProcessing}
                   >
-                    <Compress className="mr-2 h-4 w-4" />
+                    <Compass className="mr-2 h-4 w-4" />
                     {isProcessing ? "Compressing..." : "Compress PDF"}
                   </Button>
                 </div>

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FileImage, FileText, Compress, Menu } from "lucide-react";
+import { FileImage, FileText, Compass, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface NavigationProps {
@@ -49,7 +49,7 @@ const Navigation: React.FC<NavigationProps> = ({ onMenuClick }) => {
                     : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                 }`}
               >
-                <Compress className="mr-1 h-4 w-4" />
+                <Compass className="mr-1 h-4 w-4" />
                 PDF Compress
               </Link>
               <Link
