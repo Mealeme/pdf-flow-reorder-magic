@@ -153,23 +153,45 @@ export async function compressPdf(pdfFile: File, targetSizeKb: number): Promise<
       
       // Calculate compression ratio based on current size and target size
       const currentSizeKb = pdfFile.size / 1024;
-      let compressionQuality = Math.min(0.9, (targetSizeKb / currentSizeKb) * 0.9);
       
-      // Ensure compression quality is between 0.1 and 0.9
-      compressionQuality = Math.max(0.1, Math.min(0.9, compressionQuality));
+      // If the PDF is already smaller than target size, return as is
+      if (currentSizeKb <= targetSizeKb) {
+        console.log("PDF already smaller than target size, no compression needed");
+        resolve(new Blob([arrayBuffer], { type: 'application/pdf' }));
+        return;
+      }
       
-      console.log(`Compressing PDF to target size of ${targetSizeKb}KB`);
-      console.log(`Current size: ${currentSizeKb.toFixed(2)}KB, Compression quality: ${compressionQuality.toFixed(2)}`);
+      console.log(`Compressing PDF from ${currentSizeKb.toFixed(2)}KB to target size of ${targetSizeKb}KB`);
       
-      // Serialize the PDFDocument to bytes with compression
-      const compressedPdfBytes = await pdfDoc.save({
+      // Calculate compression ratio
+      const compressionRatio = Math.min(0.9, targetSizeKb / currentSizeKb);
+      
+      // Apply more aggressive compression for larger files
+      const qualityScale = currentSizeKb > 5000 ? 0.5 : 0.7;
+      const compressionQuality = Math.max(0.1, Math.min(0.9, compressionRatio * qualityScale));
+      
+      console.log(`Using compression quality: ${compressionQuality.toFixed(2)}`);
+      
+      // Create a new PDF document
+      const newPdfDoc = await PDFDocument.create();
+      
+      // Copy all pages from the original document
+      for (let i = 0; i < pages.length; i++) {
+        const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [i]);
+        newPdfDoc.addPage(copiedPage);
+      }
+      
+      // Serialize the PDFDocument to bytes with compression options
+      const compressedPdfBytes = await newPdfDoc.save({
         useObjectStreams: true,
         addDefaultPage: false,
-        objectsPerTick: 100
+        objectsPerTick: 50
       });
       
       // Create a blob from the compressed PDF bytes
       const compressedPdfBlob = new Blob([compressedPdfBytes], { type: 'application/pdf' });
+      
+      console.log(`Original size: ${(pdfFile.size / 1024).toFixed(2)}KB, Compressed size: ${(compressedPdfBlob.size / 1024).toFixed(2)}KB`);
       
       resolve(compressedPdfBlob);
     } catch (error) {

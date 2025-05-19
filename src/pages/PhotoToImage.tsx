@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, FileImage, Upload, Plus, X } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import FileUploader from "@/components/FileUploader";
 import ProgressBar from "@/components/ProgressBar";
 import Navigation from "@/components/Navigation";
@@ -13,6 +13,7 @@ import { combineImagesToPdf } from "@/utils/conversionUtils";
 const PhotoToImage = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [convertedPdfUrl, setConvertedPdfUrl] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -53,6 +54,7 @@ const PhotoToImage = () => {
     }
     
     setIsUploading(true);
+    setIsConverting(true);
     setConvertedPdfUrl(null);
     
     // Simulate upload progress
@@ -81,6 +83,7 @@ const PhotoToImage = () => {
       const pdfBlob = await combineImagesToPdf(imageFiles);
       const pdfUrl = URL.createObjectURL(pdfBlob);
       setConvertedPdfUrl(pdfUrl);
+      setIsConverting(false);
       
       toast({
         title: "Conversion complete",
@@ -88,6 +91,7 @@ const PhotoToImage = () => {
       });
     } catch (error) {
       console.error("Image processing failed:", error);
+      setIsConverting(false);
       toast({
         title: "Processing failed",
         description: "An error occurred while converting your images to PDF.",
@@ -131,6 +135,37 @@ const PhotoToImage = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const handleAddMoreImages = () => {
+    // This function will trigger the file input click
+    document.getElementById('additional-image-input')?.click();
+  };
+
+  const handleAdditionalImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Process each file
+    Array.from(files).forEach(file => {
+      if (file.type.startsWith("image/")) {
+        setImageFiles(prevFiles => [...prevFiles, file]);
+      } else {
+        toast({
+          title: "Invalid file type",
+          description: `${file.name} is not an image file.`,
+          variant: "destructive",
+        });
+      }
+    });
+    
+    // Reset the input to allow selecting the same file again
+    e.target.value = '';
+    
+    toast({
+      title: "Images added",
+      description: `${files.length} image(s) have been added to your collection.`,
+    });
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navigation onMenuClick={handleToggleMobileMenu} />
@@ -146,26 +181,28 @@ const PhotoToImage = () => {
             <CardHeader>
               <CardTitle>Upload Images</CardTitle>
               <CardDescription>
-                The application will convert your images to a PDF document
+                Upload multiple images to combine into a single PDF document
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <FileUploader 
-                onFileUpload={handleFileUpload} 
-                isUploading={isUploading}
-                acceptedFileTypes={{ 'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'] }}
-              />
+              {imageFiles.length === 0 && (
+                <FileUploader 
+                  onFileUpload={handleFileUpload} 
+                  isUploading={isUploading}
+                  acceptedFileTypes={{ 'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'] }}
+                />
+              )}
               
-              {isUploading && (
+              {(isUploading || isConverting) && (
                 <div className="mt-4">
                   <ProgressBar progress={uploadProgress} />
                   <p className="text-center text-sm text-gray-500 mt-2">
-                    Processing: {Math.round(uploadProgress)}%
+                    {isUploading ? `Processing: ${Math.round(uploadProgress)}%` : "Converting images to PDF..."}
                   </p>
                 </div>
               )}
               
-              {imageFiles.length > 0 && !isUploading && (
+              {imageFiles.length > 0 && !isUploading && !isConverting && (
                 <div className="mt-4">
                   <h3 className="text-sm font-medium mb-2">Selected Images ({imageFiles.length})</h3>
                   <div className="space-y-2 max-h-60 overflow-y-auto p-2 bg-gray-50 rounded-md">
@@ -189,11 +226,28 @@ const PhotoToImage = () => {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 flex gap-2">
+                  
+                  {/* Hidden file input for adding more images */}
+                  <input 
+                    type="file" 
+                    id="additional-image-input" 
+                    className="hidden" 
+                    accept="image/*" 
+                    multiple 
+                    onChange={handleAdditionalImageUpload} 
+                  />
+                  
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button 
+                      onClick={handleAddMoreImages}
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add More Images
+                    </Button>
                     <Button 
                       onClick={handleConvertToPdf}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                      disabled={imageFiles.length === 0}
                     >
                       <FileImage className="mr-2 h-4 w-4" />
                       Convert to PDF
@@ -203,7 +257,7 @@ const PhotoToImage = () => {
               )}
             </CardContent>
             <CardFooter className="flex justify-end space-x-2">
-              {convertedPdfUrl && (
+              {convertedPdfUrl && !isConverting && (
                 <Button 
                   onClick={handleDownload}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
