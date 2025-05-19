@@ -7,9 +7,14 @@ import { Upload, File } from "lucide-react";
 interface FileUploaderProps {
   onFileUpload: (file: File) => void;
   isUploading: boolean;
+  acceptedFileTypes?: Record<string, string[]>;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload, isUploading }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ 
+  onFileUpload, 
+  isUploading,
+  acceptedFileTypes = { 'application/pdf': ['.pdf'] } 
+}) => {
   const [isDragActive, setIsDragActive] = useState(false);
   
   const onDrop = useCallback(
@@ -24,9 +29,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload, isUploading }
 
   const { getRootProps, getInputProps, isDragReject } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf']
-    },
+    accept: acceptedFileTypes,
     multiple: false,
     disabled: isUploading,
     onDragEnter: () => setIsDragActive(true),
@@ -50,15 +53,15 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload, isUploading }
         {isDragActive ? (
           <>
             <Upload className="h-10 w-10 text-blue-500" />
-            <p className="text-blue-600 font-medium">Drop your PDF here</p>
+            <p className="text-blue-600 font-medium">Drop your file here</p>
           </>
         ) : (
           <>
             <File className="h-10 w-10 text-gray-400" />
             <p className="text-gray-600 font-medium">
-              {isUploading ? "Uploading..." : "Drag & drop a PDF file here, or click to select"}
+              {isUploading ? "Uploading..." : "Drag & drop a file here, or click to select"}
             </p>
-            <p className="text-xs text-gray-500">Support for single PDF file only</p>
+            <p className="text-xs text-gray-500">Support for single file only</p>
           </>
         )}
       </div>
