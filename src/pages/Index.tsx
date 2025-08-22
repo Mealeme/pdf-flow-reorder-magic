@@ -128,143 +128,170 @@ const Index = () => {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Navigation onMenuClick={handleToggleMobileMenu} />
       
-      <main className="flex-grow bg-gradient-to-b from-blue-50 to-white p-4 md:p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">PDF Page Reordering Tool</h1>
-            <p className="text-gray-600">Upload your PDF and we'll automatically reorder the pages</p>
+      <main className="flex-grow p-4 md:p-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-6 shadow-xl">
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent mb-4">
+              PDF Page Reordering Tool
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Transform your PDFs with intelligent page reordering. Upload, select your pattern, and download in seconds.
+            </p>
           </div>
           
-          <Card className="shadow-lg border-gray-200 mb-6">
-            <CardHeader>
-              <CardTitle>Upload PDF</CardTitle>
-              <CardDescription>
-                The application will reorder your PDF pages according to your selected sequence
+          {/* Main Upload Card */}
+          <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm rounded-3xl mb-8 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
+              <CardTitle className="text-2xl font-bold mb-2">Upload & Reorder PDF</CardTitle>
+              <CardDescription className="text-blue-100 text-lg">
+                Choose your reordering sequence and let our AI handle the rest
               </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Select Reordering Sequence:
+            </div>
+            <CardContent className="p-8">
+              <div className="mb-8">
+                <label className="block text-lg font-semibold text-gray-800 mb-3">
+                  🎯 Select Reordering Sequence
                 </label>
                 <Select 
                   value={sequenceType} 
                   onValueChange={setSequenceType}
                 >
-                  <SelectTrigger className="w-full md:w-[350px]">
-                    <SelectValue placeholder="Select a sequence type" />
+                  <SelectTrigger className="w-full md:w-[400px] h-14 text-lg border-2 border-gray-200 hover:border-blue-300 focus:border-blue-500 rounded-xl transition-all duration-200">
+                    <SelectValue placeholder="Choose your reordering pattern" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl border-2">
                     {sequenceOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem key={option.value} value={option.value} className="text-lg py-3 hover:bg-blue-50">
                         {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Different sequences will reorder pages in different patterns
+                <p className="text-sm text-gray-500 mt-3 ml-1">
+                  ✨ Each sequence creates a unique page arrangement pattern
                 </p>
               </div>
               
-              <FileUploader 
-                onFileUpload={handleFileUpload} 
-                isUploading={isUploading}
-              />
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-6 rounded-2xl border border-gray-100">
+                <FileUploader 
+                  onFileUpload={handleFileUpload} 
+                  isUploading={isUploading}
+                />
+              </div>
               
               {isUploading && (
-                <div className="mt-4">
+                <div className="mt-6 bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
                   <ProgressBar progress={uploadProgress} />
-                  <p className="text-center text-sm text-gray-500 mt-2">
-                    Uploading: {Math.round(uploadProgress)}%
+                  <p className="text-center text-gray-600 mt-3 font-medium">
+                    📤 Uploading: {Math.round(uploadProgress)}%
                   </p>
                 </div>
               )}
               
               {pdfFile && !isUploading && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-md">
-                  <p className="text-sm font-medium">File uploaded:</p>
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center">
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">{pdfFile.name}</p>
-                        <p className="text-xs text-gray-500">{(pdfFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                      </div>
+                <div className="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-200">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-green-800">File Ready!</p>
+                      <p className="text-green-700">{pdfFile.name}</p>
+                      <p className="text-sm text-green-600">{(pdfFile.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                   </div>
                 </div>
               )}
             </CardContent>
-            <CardFooter className="flex justify-end space-x-2">
+            <CardFooter className="p-8 pt-0">
               {reorderedPdfUrl && (
-                <>
+                <div className="w-full flex flex-col sm:flex-row gap-4">
                   <Button 
                     onClick={() => setShowPreview(true)}
                     variant="outline"
+                    size="lg"
+                    className="flex-1 h-14 text-lg font-semibold border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-all duration-200"
                   >
-                    <Eye className="mr-2 h-4 w-4" />
-                    Preview
+                    <Eye className="mr-3 h-5 w-5" />
+                    Preview PDF
                   </Button>
                   <Button 
                     onClick={handleDownload}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="lg"
+                    className="flex-1 h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                   >
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
+                    <Download className="mr-3 h-5 w-5" />
+                    Download PDF
                   </Button>
-                </>
+                </div>
               )}
             </CardFooter>
           </Card>
           
-          <div className="mt-8 space-y-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-3">Pricing Plans</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold mb-2">Free</h3>
-                  <p className="text-2xl font-bold mb-4">$0<span className="text-sm font-normal">/month</span></p>
-                  <ul className="space-y-2 mb-4 text-sm">
-                    <li>✓ Up to 5 PDFs per day</li>
-                    <li>✓ Max 50 pages per PDF</li>
-                    <li>✓ Standard reordering patterns</li>
-                  </ul>
+          {/* Features Section */}
+          <div className="mb-12">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">✨ All Features Are Completely Free!</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Enjoy unlimited access to all our premium PDF tools without any restrictions or hidden costs.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="group bg-white p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
                 </div>
-                
-                <div className="p-4 border rounded-lg bg-blue-50 border-blue-200 relative">
-                  <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">
-                    POPULAR
-                  </div>
-                  <h3 className="font-semibold mb-2">Premium</h3>
-                  <p className="text-2xl font-bold mb-4">$9.99<span className="text-sm font-normal">/month</span></p>
-                  <ul className="space-y-2 mb-4 text-sm">
-                    <li>✓ Unlimited PDFs</li>
-                    <li>✓ Up to 200 pages per PDF</li>
-                    <li>✓ All reordering patterns</li>
-                    <li>✓ Advanced customization</li>
-                  </ul>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">🚀 Unlimited PDFs</h3>
+                <p className="text-gray-600 leading-relaxed">Process as many PDFs as you need, whenever you need them. No daily limits or restrictions.</p>
+              </div>
+              
+              <div className="group bg-white p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
                 </div>
-                
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold mb-2">Enterprise</h3>
-                  <p className="text-2xl font-bold mb-4">Contact Us</p>
-                  <ul className="space-y-2 mb-4 text-sm">
-                    <li>✓ Unlimited usage</li>
-                    <li>✓ Unlimited page count</li>
-                    <li>✓ Custom reordering algorithms</li>
-                    <li>✓ API access</li>
-                    <li>✓ Dedicated support</li>
-                  </ul>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">📄 Unlimited Pages</h3>
+                <p className="text-gray-600 leading-relaxed">No page count restrictions. Handle documents of any size with our powerful processing engine.</p>
+              </div>
+              
+              <div className="group bg-white p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                  </svg>
                 </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">🎨 All Features</h3>
+                <p className="text-gray-600 leading-relaxed">Access to every tool, pattern, and customization option. No premium features locked behind paywalls.</p>
               </div>
             </div>
           </div>
           
-          <div className="text-center text-sm text-gray-500 mt-8">
-            <p>Your files remain private and are not stored on our servers</p>
+          {/* Trust Section */}
+          <div className="text-center bg-white/60 backdrop-blur-sm p-8 rounded-3xl shadow-lg border border-gray-100">
+            <div className="w-16 h-16 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">🔒 Your Privacy Matters</h3>
+            <p className="text-gray-600">
+              Your files remain completely private and are never stored on our servers. Process with confidence.
+            </p>
           </div>
         </div>
       </main>
@@ -282,14 +309,13 @@ const Index = () => {
       
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={handleToggleMobileMenu}>
-          <div className="bg-white w-64 h-full p-4" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" onClick={handleToggleMobileMenu}>
+          <div className="bg-white/95 backdrop-blur-md w-80 h-full p-6 rounded-r-3xl shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="mb-8">
-              <h2 className="text-lg font-bold mb-4">Menu</h2>
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">Menu</h2>
               <ul className="space-y-4">
-                <li><a href="#" className="block py-2 hover:text-blue-600">Services</a></li>
-                <li><a href="#" className="block py-2 hover:text-blue-600">Pricing</a></li>
-                <li><a href="#" className="block py-2 hover:text-blue-600">Support</a></li>
+                <li><a href="#" className="block py-3 px-4 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors duration-200 font-medium">Services</a></li>
+                <li><a href="#" className="block py-3 px-4 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors duration-200 font-medium">Support</a></li>
               </ul>
             </div>
           </div>
