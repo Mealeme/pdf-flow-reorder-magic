@@ -1,14 +1,16 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, FileImage, Upload, Plus, X } from "lucide-react";
+import { Download, FileImage, Upload, Plus, X, LogOut, User, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import FileUploader from "@/components/FileUploader";
 import ProgressBar from "@/components/ProgressBar";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { combineImagesToPdf } from "@/utils/conversionUtils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const PhotoToImage = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -18,6 +20,17 @@ const PhotoToImage = () => {
   const [convertedPdfUrl, setConvertedPdfUrl] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  // Load profile image from localStorage
+  useEffect(() => {
+    const savedImage = localStorage.getItem('profileImage');
+    if (savedImage) {
+      setProfileImage(savedImage);
+    }
+  }, []);
 
   const handleFileUpload = async (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -279,15 +292,95 @@ const PhotoToImage = () => {
       
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={handleToggleMobileMenu}>
-          <div className="bg-white w-64 h-full p-4" onClick={e => e.stopPropagation()}>
-            <div className="mb-8">
-              <h2 className="text-lg font-bold mb-4">Menu</h2>
-              <ul className="space-y-4">
-                <li><a href="/" className="block py-2 hover:text-blue-600">PDF Reordering</a></li>
-                <li><a href="/photo-to-image" className="block py-2 text-blue-600 font-medium">Photo to PDF</a></li>
-                <li><a href="/pdf-compress" className="block py-2 hover:text-blue-600">PDF Compress</a></li>
-                <li><a href="/pdf-to-world" className="block py-2 hover:text-blue-600">PDF to Text</a></li>
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" onClick={handleToggleMobileMenu}>
+          <div className="bg-white/95 backdrop-blur-md w-80 h-full p-6 rounded-r-3xl shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-800">Menu</h2>
+              <button
+                onClick={handleToggleMobileMenu}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              >
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <ul className="space-y-4 pb-4">
+                 {/* PDF Tools */}
+                 <li className="pt-2">
+                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-4">PDF Tools</h3>
+                 </li>
+                 <li><button onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">PDF Reordering</button></li>
+                 <li><button onClick={() => { navigate('/pdf-compress'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">PDF Compression</button></li>
+                 <li><button onClick={() => { navigate('/pdf-to-world'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">PDF to World</button></li>
+                 <li><button onClick={() => { navigate('/photo-to-image'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 bg-blue-50 text-blue-600 rounded-xl border-2 border-blue-200 font-medium text-left">Photo to PDF</button></li>
+                 
+                 {/* Information */}
+                 <li className="pt-4">
+                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-4">Information</h3>
+                 </li>
+                 <li><button onClick={() => { navigate('/footer-info'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">About Us</button></li>
+                 <li><button onClick={() => { navigate('/footer-info'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">Contact & Support</button></li>
+                 <li><button onClick={() => { navigate('/privacy-policy'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">Privacy Policy</button></li>
+                                 {isAuthenticated ? (
+                   <>
+                     {/* Account */}
+                     <li className="pt-4">
+                       <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-4">Account</h3>
+                     </li>
+                     <li>
+                       <button
+                         onClick={() => {
+                           navigate('/profile');
+                           setIsMobileMenuOpen(false);
+                         }}
+                         className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left"
+                       >
+                         <div className="flex items-center">
+                           {profileImage ? (
+                             <div className="w-8 h-8 rounded-full overflow-hidden mr-3 flex-shrink-0 border-2 border-blue-200">
+                               <img 
+                                 src={profileImage} 
+                                 alt="Profile" 
+                                 className="w-full h-full object-cover"
+                               />
+                             </div>
+                           ) : (
+                             <User className="mr-3 h-4 w-4 flex-shrink-0" />
+                           )}
+                           <span className="truncate">My Profile</span>
+                         </div>
+                       </button>
+                     </li>
+                     <li>
+                       <button
+                         onClick={logout}
+                         className="block w-full py-3 px-4 hover:bg-red-50 hover:text-red-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left"
+                       >
+                         <div className="flex items-center">
+                           <LogOut className="mr-3 h-4 w-4" />
+                           Sign Out
+                         </div>
+                       </button>
+                     </li>
+                   </>
+                 ) : (
+                  <li>
+                    <button
+                      onClick={() => {
+                        navigate('/login');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="block w-full py-3 px-4 bg-blue-50 text-blue-600 rounded-xl border-2 border-blue-200 font-medium hover:bg-blue-100 hover:scale-105 transition-all duration-300"
+                    >
+                      <div className="flex items-center">
+                        <FileText className="mr-3 h-4 w-4" />
+                        Sign In
+                      </div>
+                    </button>
+                  </li>
+                )}
               </ul>
             </div>
           </div>
