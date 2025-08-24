@@ -2,6 +2,60 @@
 import { PDFDocument } from 'pdf-lib';
 
 /**
+ * Generate chunk order based on selection (must be multiple of 3)
+ * @param selection The selection value (must be positive multiple of 3)
+ * @returns Array of page indices in chunk order
+ */
+function chunkOrder(selection: number): number[] {
+  if (selection % 3 !== 0 || selection <= 0) {
+    throw new Error("Selection must be a positive multiple of 3 (e.g., 3,6,9,12).");
+  }
+
+  const S = selection;
+  const chunkSize = 2 * S;
+
+  const odds = Array.from({ length: S }, (_, i) => 2 * i + 1);
+  const evens = Array.from({ length: S }, (_, i) => 2 * i + 2);
+
+  // Special handling for 6-page chunk order
+  if (selection === 6) {
+    // For 6: [1,3,5,7,9,11,6,4,2,12,10,8]
+    // Split evens into two blocks and reverse each block
+    const block1 = evens.slice(0, 3).reverse(); // [6,4,2]
+    const block2 = evens.slice(3, 6).reverse(); // [12,10,8]
+    return [...odds, ...block1, ...block2];
+  }
+
+  // Special handling for 12-page chunk order
+  if (selection === 12) {
+    // For 12: [1,3,5,7,9,11,13,15,17,19,21,23,8,6,4,2,16,14,12,10,24,22,20,18]
+    // Split evens into three blocks and reverse each block
+    const block1 = evens.slice(0, 4).reverse(); // [8,6,4,2]
+    const block2 = evens.slice(4, 8).reverse(); // [16,14,12,10]
+    const block3 = evens.slice(8, 12).reverse(); // [24,22,20,18]
+    return [...odds, ...block1, ...block2, ...block3];
+  }
+
+  // For other multiples of 3 (3, 9, 12, etc.)
+  const block = S / 3;
+  const blocks: number[][] = [];
+  for (let i = 0; i < evens.length; i += block) {
+    blocks.push(evens.slice(i, i + block));
+  }
+
+  // Keep blocks in original order (no rotation)
+  let rotated: number[][];
+  rotated = blocks;
+
+  const evensReordered: number[] = [];
+  for (const b of rotated) {
+    evensReordered.push(...b.reverse());
+  }
+
+  return [...odds, ...evensReordered];
+}
+
+/**
  * Generate a custom order based on the selected sequence type
  * @param nPages Total number of pages
  * @param sequenceType Type of sequence to generate
@@ -9,120 +63,58 @@ import { PDFDocument } from 'pdf-lib';
  */
 export function generateCustomOrder(nPages: number, sequenceType: string): number[] {
   switch (sequenceType) {
-    case "1":
-      return generateSequence1(nPages);
-    case "2":
-      return generateSequence2(nPages);
-    case "4":
-      return generateSequence4(nPages);
     case "6":
-      return generateSequence6(nPages);
+      return generateChunkOrderSequence(nPages, 6);
     case "9":
-      return generateFixedCustomOrder(nPages); // Our original sequence for 9
+      return generateChunkOrderSequence(nPages, 9);
     case "12":
-      return generateSequence6(nPages); // Using 6-page sequence for 12 option
-    case "16":
-      return generateSequence16(nPages);
+      return generateChunkOrderSequence(nPages, 12);
     default:
-      return generateFixedCustomOrder(nPages); // Default to original algorithm
+      return generateChunkOrderSequence(nPages, 9); // Default to 9-page chunk order
   }
 }
 
 /**
- * Generate a fixed custom order for PDF pages (original algorithm)
+ * Generate sequence using chunk_order logic for multiples of 3
  * @param nPages Total number of pages
- * @returns Array of page indices in custom order
+ * @param chunkSize The chunk size (must be multiple of 3)
+ * @returns Array of page indices in chunk order
  */
-export function generateFixedCustomOrder(nPages: number): number[] {
-  const finalOrder: number[] = [];
-
-  // Repeat the logic in 18-page blocks
-  for (let blockStart = 1; blockStart <= nPages; blockStart += 18) {
-    // Odd part: first 9 odd pages from block
-    const oddPart: number[] = [];
-    for (let i = 0; i < 18; i++) {
-      const page = blockStart + i;
-      if (page <= nPages && page % 2 === 1) {
-        oddPart.push(page);
-        if (oddPart.length === 9) break;
-      }
-    }
-
-    // Even part: follow custom pattern using relative page positions
-    const evenPart: number[] = [];
-    for (const i of [6, 4, 2, 12, 10, 8, 18, 16, 14]) {
-      const page = blockStart + (i - 1);
-      if (page <= nPages && page % 2 === 0) {
-        evenPart.push(page);
-      }
-    }
-
-    // Combine and add to final sequence
-    finalOrder.push(...oddPart, ...evenPart);
-  }
-
-  // Convert from 1-indexed to 0-indexed for PDF library
-  return finalOrder.map(page => page - 1);
-}
-
-// Sequence for option 1 (simple sequential)
-function generateSequence1(nPages: number): number[] {
-  return Array.from({ length: nPages }, (_, i) => i); // Just sequential order
-}
-
-// Sequence for option 2 (every second page)
-function generateSequence2(nPages: number): number[] {
+function generateChunkOrderSequence(nPages: number, chunkSize: number): number[] {
   const finalOrder: number[] = [];
   
-  // First all odd pages, then all even pages
-  for (let i = 0; i < nPages; i += 2) {
-    finalOrder.push(i);
-  }
-  for (let i = 1; i < nPages; i += 2) {
-    finalOrder.push(i);
-  }
+  // Process in blocks of chunkSize * 2 (18 pages for chunk size 9)
+  const blockSize = chunkSize * 2;
   
-  return finalOrder;
-}
-
-// Sequence for option 4 (4-page grouping)
-function generateSequence4(nPages: number): number[] {
-  const finalOrder: number[] = [];
-  
-  for (let blockStart = 0; blockStart < nPages; blockStart += 4) {
-    const pattern = [0, 3, 1, 2]; // Custom 4-page pattern
-    for (const offset of pattern) {
-      const page = blockStart + offset;
-      if (page < nPages) {
-        finalOrder.push(page);
-      }
-    }
-  }
-  
-  return finalOrder;
-}
-
-// Sequence for option 6 (6-page grouping) - Updated to match the exact pattern provided
-function generateSequence6(nPages: number): number[] {
-  const finalOrder: number[] = [];
-  
-  // Process in 12-page blocks to match the pattern [1,3,5,7,9,11,6,4,2,12,10,8]
-  for (let blockStart = 1; blockStart <= nPages; blockStart += 12) {
-    // First add odd pages (1,3,5,7,9,11 relative to block)
-    const oddPart: number[] = [];
-    for (let i = 0; i < 12; i += 2) {
-      const page = blockStart + i;
-      if (page <= nPages) {
-        oddPart.push(page);
-      }
-    }
+  for (let blockStart = 1; blockStart <= nPages; blockStart += blockSize) {
+    const blockEnd = blockStart + blockSize - 1;
     
-    // Then add even pages in reverse pairs (6,4,2,12,10,8 relative to block)
-    const evenPattern = [6, 4, 2, 12, 10, 8];
-    for (const offset of evenPattern) {
-      const page = blockStart + offset - 1; // Convert to 0-indexed
-      if (page <= nPages) {
-        finalOrder.push(page);
+    // Check if we have a complete 18-page block
+    if (blockEnd <= nPages) {
+      // Complete block - apply chunk order
+      try {
+        const chunkOrderResult = chunkOrder(chunkSize);
+        
+        // Apply the chunk order to the current block
+        for (const relativePage of chunkOrderResult) {
+          const page = blockStart + relativePage - 1; // Convert to 1-indexed
+          finalOrder.push(page);
+        }
+      } catch (error) {
+        console.error(`Error generating chunk order for size ${chunkSize}:`, error);
+        // Fallback to sequential order for this block
+        for (let i = 0; i < blockSize; i++) {
+          const page = blockStart + i;
+          finalOrder.push(page);
+        }
+      }
+    } else {
+      // Incomplete block - keep pages in original order
+      for (let i = 0; i < blockSize; i++) {
+        const page = blockStart + i;
+        if (page <= nPages) {
+          finalOrder.push(page);
+        }
       }
     }
   }
@@ -131,28 +123,17 @@ function generateSequence6(nPages: number): number[] {
   return finalOrder.map(page => page - 1);
 }
 
-// Sequence for option 16 (16-page grouping)
-function generateSequence16(nPages: number): number[] {
-  const finalOrder: number[] = [];
-  
-  for (let blockStart = 0; blockStart < nPages; blockStart += 16) {
-    // First 8 odd, then 8 even in reverse order
-    for (let i = 0; i < 16; i += 2) {
-      const page = blockStart + i;
-      if (page < nPages) {
-        finalOrder.push(page);
-      }
-    }
-    for (let i = 15; i > 0; i -= 2) {
-      const page = blockStart + i;
-      if (page < nPages) {
-        finalOrder.push(page);
-      }
-    }
-  }
-  
-  return finalOrder;
-}
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Reorder PDF pages according to custom sequence
