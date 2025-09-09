@@ -1,0 +1,50 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Main Logo Container -->
+  <g transform="translate(450, 165)">
+    <!-- Document Icon Background -->
+    <rect width="300" height="300" rx="75" fill="url(#documentGradient)" stroke="#93C5FD" stroke-width="8"/>
+    
+    <!-- Document Icon Content -->
+    <rect x="75" y="56" width="150" height="188" rx="19" fill="white" stroke="#BFDBFE" stroke-width="8"/>
+    
+    <!-- Document lines -->
+    <rect x="94" y="84" width="112" height="9" rx="4.5" fill="#93C5FD"/>
+    <rect x="94" y="103" width="131" height="9" rx="4.5" fill="#93C5FD"/>
+    <rect x="94" y="122" width="150" height="9" rx="4.5" fill="#93C5FD"/>
+    <rect x="94" y="141" width="112" height="9" rx="4.5" fill="#93C5FD"/>
+    
+    <!-- Camera Aperture Overlay -->
+    <circle cx="225" cy="225" r="75" fill="url(#apertureGradient)" stroke="white" stroke-width="19"/>
+    <circle cx="225" cy="225" r="56" fill="white"/>
+    <circle cx="225" cy="225" r="38" fill="#10B981"/>
+  </g>
+  
+  <!-- Site Title -->
+  <text x="600" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white">
+    NewMicro
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#E5E7EB">
+    Professional PDF Tools
+  </text>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E40AF"/>
+      <stop offset="100%" style="stop-color:#0F172A"/>
+    </linearGradient>
+    <linearGradient id="documentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#60A5FA"/>
+      <stop offset="100%" style="stop-color:#22D3EE"/>
+    </linearGradient>
+    <linearGradient id="apertureGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#84CC16"/>
+      <stop offset="100%" style="stop-color:#10B981"/>
+    </linearGradient>
+  </defs>
+</svg>
