@@ -7,7 +7,7 @@ echo "🧪 Testing deployment..."
 
 # Configuration
 WEB_DIR="/var/www/html"
-SITE_URL="http://13.200.77.118"
+SITE_URL="https://newmicro.live"
 
 # Colors
 GREEN='\033[0;32m'

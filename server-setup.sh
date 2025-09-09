@@ -57,7 +57,7 @@ print_status "Configuring Nginx..."
 sudo tee /etc/nginx/sites-available/pdf-flow-reorder-magic << EOF
 server {
     listen 80;
-    server_name 13.200.77.118;
+    server_name newmicro.live www.newmicro.live;
     root /var/www/html;
     index index.html;
 
@@ -76,7 +76,7 @@ server {
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
-    gzip_proxied expired no-cache no-store private must-revalidate auth;
+    gzip_proxied expired no-cache no-store private auth;
     gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss;
 }
 EOF

@@ -4,7 +4,7 @@ This guide will help you set up automatic deployment from your GitHub repository
 
 ## 📋 Prerequisites
 
-- Ubuntu/Debian server (13.200.77.118)
+- Ubuntu/Debian server (hosting newmicro.live)
 - SSH access to your server
 - GitHub repository: https://github.com/Mealeme/pdf-flow-reorder-magic.git
 
@@ -14,7 +14,7 @@ This guide will help you set up automatic deployment from your GitHub repository
 
 1. **Connect to your server:**
    ```bash
-   ssh your_username@13.200.77.118
+   ssh your_username@your_server_ip
    ```
 
 2. **Run the setup script:**
@@ -38,7 +38,7 @@ This guide will help you set up automatic deployment from your GitHub repository
    ```
 
 2. **Verify deployment:**
-   - Visit: http://13.200.77.118
+   - Visit: https://newmicro.live
    - Check if your site loads correctly
 
 ## 🔐 GitHub Actions Setup
@@ -59,7 +59,7 @@ cat ~/.ssh/github_actions_key.pub
 
 1. **Copy the public key to your server:**
    ```bash
-   ssh-copy-id -i ~/.ssh/github_actions_key.pub your_username@13.200.77.118
+   ssh-copy-id -i ~/.ssh/github_actions_key.pub your_username@your_server_ip
    ```
 
 2. **Or manually add to authorized_keys:**
@@ -82,7 +82,7 @@ cat ~/.ssh/github_actions_key.pub
 
    | Secret Name | Value | Description |
    |-------------|-------|-------------|
-   | `HOST` | `13.200.77.118` | Your server IP address |
+   | `HOST` | `your_server_ip` | Your server IP address |
    | `USERNAME` | `your_server_username` | SSH username for your server |
    | `SSH_PRIVATE_KEY` | `contents of ~/.ssh/github_actions_key` | Private SSH key content |
    | `PORT` | `22` | SSH port (default is 22) |
@@ -131,7 +131,7 @@ cd /var/www/pdf-flow-reorder-magic
 1. **SSH Connection Failed:**
    - Check if SSH key is correctly added to GitHub secrets
    - Verify server IP and username
-   - Test SSH connection manually: `ssh your_username@13.200.77.118`
+   - Test SSH connection manually: `ssh your_username@your_server_ip`
 
 2. **Build Failed:**
    - Check if all dependencies are installed
