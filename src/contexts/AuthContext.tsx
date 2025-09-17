@@ -38,6 +38,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     checkAuthState();
+
+    // Listen for authentication events across tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'amplify-auth-config' || e.key?.startsWith('CognitoIdentityServiceProvider')) {
+        checkAuthState();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Also check auth state when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkAuthState();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const checkAuthState = async () => {
@@ -124,12 +147,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const confirmRegistration = async (email: string, code: string) => {
     try {
       setIsLoading(true);
-      const { isSignUpComplete } = await confirmSignUp({
+      const { isSignUpComplete, userId } = await confirmSignUp({
         username: email,
         confirmationCode: code,
       });
 
       if (isSignUpComplete) {
+        // Create free plan and default profile for new user
+        try {
+          console.log('🚀 Creating user data for new user:', userId, 'email:', email);
+
+          // Create free subscription
+          const subscriptionResponse = await fetch("/api/subscription/free", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId })
+          });
+
+          if (!subscriptionResponse.ok) {
+            console.error('Failed to create free subscription');
+          } else {
+            console.log('✅ Free subscription created successfully');
+          }
+
+          // Create default profile - this will be handled automatically by getUserProfile now
+          // But we'll still call update to ensure it has the correct email
+          const profileResponse = await fetch("/api/profile/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId,
+              firstName: "",
+              lastName: "",
+              email,
+              phone: "",
+              location: "",
+              joinDate: new Date().toLocaleDateString(),
+              bio: "PDF enthusiast and document management specialist. Love working with NewMicro tools!"
+            })
+          });
+
+          if (!profileResponse.ok) {
+            console.error('Failed to create/update user profile');
+          } else {
+            console.log('✅ User profile created/updated successfully');
+          }
+
+          console.log('🎉 User account setup completed successfully');
+        } catch (error) {
+          console.error('❌ Error creating user data:', error);
+          // Don't block account confirmation if data creation fails
+        }
+
         toast({
           title: "Account confirmed",
           description: "Your account has been successfully confirmed. You can now sign in.",

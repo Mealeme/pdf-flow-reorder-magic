@@ -1,10 +1,13 @@
 
+import { addWatermarkToPdf, addWatermarkToJsPdf } from './watermarkUtils';
+
 /**
  * Convert an image file to PDF
  * @param imageFile The image file to convert
+ * @param userEmail User's email to check plan for watermarking
  * @returns Promise resolving to a Blob containing the PDF
  */
-export async function convertImageToPdf(imageFile: File): Promise<Blob> {
+export async function convertImageToPdf(imageFile: File, userEmail?: string): Promise<Blob> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = async (e) => {
@@ -34,6 +37,9 @@ export async function convertImageToPdf(imageFile: File): Promise<Blob> {
           // Add the image to the PDF
           pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, img.width, img.height);
           
+          // Add watermark for Free users
+          addWatermarkToJsPdf(pdf, userEmail);
+          
           // Convert to blob and resolve
           const pdfBlob = pdf.output('blob');
           resolve(pdfBlob);
@@ -52,9 +58,10 @@ export async function convertImageToPdf(imageFile: File): Promise<Blob> {
 /**
  * Combine multiple images into a single PDF
  * @param imageFiles Array of image files to convert
+ * @param userEmail User's email to check plan for watermarking
  * @returns Promise resolving to a Blob containing the PDF
  */
-export async function combineImagesToPdf(imageFiles: File[]): Promise<Blob> {
+export async function combineImagesToPdf(imageFiles: File[], userEmail?: string): Promise<Blob> {
   return new Promise((resolve) => {
     const loadedImages: HTMLImageElement[] = [];
     let loadedCount = 0;
@@ -119,6 +126,9 @@ export async function combineImagesToPdf(imageFiles: File[]): Promise<Blob> {
                 );
               });
               
+              // Add watermark for Free users
+              addWatermarkToJsPdf(pdf, userEmail);
+              
               // Convert to blob and resolve
               const pdfBlob = pdf.output('blob');
               resolve(pdfBlob);
@@ -136,9 +146,10 @@ export async function combineImagesToPdf(imageFiles: File[]): Promise<Blob> {
  * Compress a PDF file
  * @param pdfFile The PDF file to compress
  * @param targetSizeKb Target size in kilobytes
+ * @param userEmail User's email to check plan for watermarking
  * @returns Promise resolving to a compressed PDF Blob
  */
-export async function compressPdf(pdfFile: File, targetSizeKb: number): Promise<Blob> {
+export async function compressPdf(pdfFile: File, targetSizeKb: number, userEmail?: string): Promise<Blob> {
   return new Promise(async (resolve, reject) => {
     try {
       // Import pdf-lib
@@ -181,6 +192,9 @@ export async function compressPdf(pdfFile: File, targetSizeKb: number): Promise<
         newPdfDoc.addPage(copiedPage);
       }
       
+      // Add watermark for Free users
+      await addWatermarkToPdf(newPdfDoc, userEmail);
+      
       // Serialize the PDFDocument to bytes with compression options
       const compressedPdfBytes = await newPdfDoc.save({
         useObjectStreams: true,
@@ -189,7 +203,7 @@ export async function compressPdf(pdfFile: File, targetSizeKb: number): Promise<
       });
       
       // Create a blob from the compressed PDF bytes
-      const compressedPdfBlob = new Blob([compressedPdfBytes], { type: 'application/pdf' });
+      const compressedPdfBlob = new Blob([new Uint8Array(compressedPdfBytes)], { type: 'application/pdf' });
       
       console.log(`Original size: ${(pdfFile.size / 1024).toFixed(2)}KB, Compressed size: ${(compressedPdfBlob.size / 1024).toFixed(2)}KB`);
       

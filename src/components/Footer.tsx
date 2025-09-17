@@ -73,6 +73,10 @@ const Footer: React.FC = () => {
                 <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 group-hover:scale-150 group-hover:bg-blue-300 transition-all duration-300"></span>
                 Photo to PDF
               </a></li>
+              <li><a href="/pricing" className="text-gray-300 hover:text-blue-300 hover:scale-105 transition-all duration-300 flex items-center group">
+                <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 group-hover:scale-150 group-hover:bg-blue-300 transition-all duration-300"></span>
+                💰 Pricing Plans
+              </a></li>
             </ul>
           </div>
           

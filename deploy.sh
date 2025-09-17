@@ -58,8 +58,9 @@ else
 fi
 
 # Install/update dependencies
-print_status "Installing dependencies..."
-npm ci
+print_status "Installing dependencies (including dev tools)..."
+# Ensure devDependencies are installed so Vite is available
+npm install
 
 # Build the project
 print_status "Building project..."
@@ -98,7 +99,7 @@ print_status "Cleaning up old backups..."
 sudo find /var/www -name "html.backup.*" -type d | sort | head -n -5 | sudo xargs rm -rf 2>/dev/null || true
 
 print_status "✅ Deployment completed successfully!"
-print_status "Your site should now be live at: http://13.200.77.118"
+print_status "Your site should now be live at: https://newmicro.live"
 
 # Show deployment info
 echo ""

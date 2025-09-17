@@ -36,15 +36,27 @@ const Login = () => {
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
-  
-  const { login, register, confirmRegistration, resendConfirmationCode, initiatePasswordReset, confirmPasswordReset, isLoading } = useAuth();
+
+  const { login, register, confirmRegistration, resendConfirmationCode, initiatePasswordReset, confirmPasswordReset, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      const intendedPath = sessionStorage.getItem('intendedPath') || '/';
+      sessionStorage.removeItem('intendedPath');
+      navigate(intendedPath);
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login(email, password);
-      navigate("/");
+      // Redirect to intended destination or home
+      const intendedPath = sessionStorage.getItem('intendedPath') || '/';
+      sessionStorage.removeItem('intendedPath');
+      navigate(intendedPath);
     } catch (error) {
       // Error is handled by the auth context
     }

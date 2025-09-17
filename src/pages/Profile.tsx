@@ -21,15 +21,17 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { getUsageSummary, getCurrentPlan } from "@/utils/usageUtils";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
 const Profile = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
   const [isEditing, setIsEditing] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: "John",
     lastName: "Doe",
@@ -39,57 +41,216 @@ const Profile = () => {
     joinDate: "January 2024",
     bio: "PDF enthusiast and document management specialist. Love working with NewMicro tools!"
   });
-  const [profileImage, setProfileImage] = useState<string | null>(null);
 
-  // Load profile image from localStorage on component mount
+  // Update email when user changes
   React.useEffect(() => {
-    const savedImage = localStorage.getItem('profileImage');
-    if (savedImage) {
-      setProfileImage(savedImage);
+    if (user?.email && profileData.email !== user.email) {
+      setProfileData(prev => ({
+        ...prev,
+        email: user.email
+      }));
     }
-  }, []);
+  }, [user?.email, profileData.email]);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [usageSummary, setUsageSummary] = useState(null);
+  const [userPlan, setUserPlan] = useState('free');
 
-  // Redirect if not authenticated
+  // Load profile data from API on component mount
   React.useEffect(() => {
-    if (!isAuthenticated) {
+    const loadProfile = async () => {
+      if (user?.userId) {
+        try {
+          const res = await fetch(`/api/profile/get/${user.userId}`);
+          const profile = await res.json();
+          if (profile && Object.keys(profile).length > 0) {
+            setProfileData({
+              firstName: profile.firstName || "John",
+              lastName: profile.lastName || "Doe",
+              email: user.email || profile.email || "",
+              phone: profile.phone || "+1 (555) 123-4567",
+              location: profile.location || "New York, NY",
+              joinDate: profile.joinDate || "January 2024",
+              bio: profile.bio || "PDF enthusiast and document management specialist. Love working with NewMicro tools!"
+            });
+            if (profile.photoUrl) {
+              setPhotoUrl(profile.photoUrl);
+            }
+          } else {
+            // Set default data with user's email
+            setProfileData(prev => ({
+              ...prev,
+              email: user?.email || "",
+            }));
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+          // Fallback to default
+          setProfileData(prev => ({
+            ...prev,
+            email: user?.email || "",
+          }));
+        }
+      }
+    };
+
+    loadProfile();
+
+    // Load plan and usage summary
+    const loadPlanAndUsage = async () => {
+      if (user?.userId) {
+        try {
+          const plan = await getCurrentPlan(user.userId);
+          setUserPlan(plan);
+          const summary = await getUsageSummary(user.userId);
+          setUsageSummary(summary);
+        } catch (error) {
+          console.error('Error loading plan:', error);
+          setUserPlan('free');
+          // Fallback to default usage
+          setUsageSummary({
+            plan: 'free',
+            limits: { pdfUploads: 1, pdfCompress: 1, pdfReorder: 1, photoToPdf: 1, dailyReset: true },
+            usage: { pdfUploads: 0, pdfCompress: 0, pdfReorder: 0, photoToPdf: 0, lastReset: new Date().toISOString() },
+            remaining: { pdfUploads: 1, pdfCompress: 1, pdfReorder: 1, photoToPdf: 1 }
+          });
+        }
+      }
+    };
+
+    loadPlanAndUsage();
+  }, [user]);
+
+  // Redirect if not authenticated (only after loading is complete)
+  React.useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      // Store the current path for redirect after login
+      sessionStorage.setItem('intendedPath', window.location.pathname);
       navigate('/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
 
-  // Show loading or redirect if not authenticated
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <Navigation onMenuClick={() => {}} />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your profile...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated (after loading is complete)
   if (!isAuthenticated) {
     return null;
   }
 
-  const handleSave = () => {
-    // Here you would typically save to backend
-    toast({
-      title: "Profile updated",
-      description: "Your profile information has been saved successfully.",
-    });
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!user?.userId) {
+      toast({
+        title: "Error",
+        description: "User not authenticated.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const dataToSave = {
+        ...profileData,
+        email: user?.email || profileData.email,
+        photoUrl,
+      };
+
+      await fetch("/api/profile/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.userId, ...dataToSave })
+      });
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile information has been saved successfully.",
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast({
+        title: "Error saving profile",
+        description: "There was an error saving your profile. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
-        // Store in localStorage for persistence
-        localStorage.setItem('profileImage', e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (file && user?.userId) {
+      setUploadingPhoto(true);
+      const formData = new FormData();
+      formData.append("photo", file);
+      formData.append("userId", user.userId);
+
+      try {
+        const response = await fetch("/api/profile/upload-photo", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setPhotoUrl(data.photoUrl);
+          // Dispatch event to update navigation
+          window.dispatchEvent(new CustomEvent('profilePhotoUpdated', { detail: data.photoUrl }));
+          toast({
+            title: "Photo uploaded",
+            description: "Your profile photo has been uploaded successfully.",
+          });
+        } else {
+          toast({
+            title: "Upload failed",
+            description: data.error || "Failed to upload photo.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Error uploading profile photo:', error);
+        toast({
+          title: "Upload failed",
+          description: "There was an error uploading your photo. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setUploadingPhoto(false);
+      }
     }
   };
 
-  const removeProfileImage = () => {
-    setProfileImage(null);
-    localStorage.removeItem('profileImage');
+  const removeProfileImage = async () => {
+    setPhotoUrl(null);
+
+    if (user?.userId) {
+      try {
+        // To remove, we can update with empty photoUrl or use UpdateCommand to remove attribute
+        // For simplicity, set to null
+        await fetch("/api/profile/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.userId, photoUrl: null })
+        });
+      } catch (error) {
+        console.error('Error removing profile image:', error);
+      }
+    }
   };
 
   const handleLogout = async () => {
@@ -126,11 +287,11 @@ const Profile = () => {
              <Card className="md:col-span-3 shadow-2xl border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-3xl transition-all duration-500 ease-out">
                <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white text-center">
                  <div className="relative w-24 h-24 mx-auto mb-4">
-                   {profileImage ? (
+                   {photoUrl ? (
                      <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white/30 shadow-lg hover:scale-110 transition-transform duration-300">
-                       <img 
-                         src={profileImage} 
-                         alt="Profile" 
+                       <img
+                         src={photoUrl}
+                         alt="Profile"
                          className="w-full h-full object-cover"
                        />
                      </div>
@@ -139,10 +300,17 @@ const Profile = () => {
                        <User className="w-12 h-12" />
                      </div>
                    )}
-                   
+
+                   {/* Loading overlay */}
+                   {uploadingPhoto && (
+                     <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                     </div>
+                   )}
+
                    {/* Image upload overlay */}
                    <div className="absolute -bottom-2 -right-2">
-                     <label htmlFor="profile-image-upload" className="cursor-pointer">
+                     <label htmlFor="profile-image-upload" className={`cursor-pointer ${uploadingPhoto ? 'pointer-events-none opacity-50' : ''}`}>
                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors duration-300 shadow-lg">
                          <Camera className="w-4 h-4 text-white" />
                        </div>
@@ -152,12 +320,13 @@ const Profile = () => {
                        type="file"
                        accept="image/*"
                        onChange={handleImageUpload}
+                       disabled={uploadingPhoto}
                        className="hidden"
                      />
                    </div>
                    
                    {/* Remove image button */}
-                   {profileImage && (
+                   {photoUrl && (
                      <button
                        onClick={removeProfileImage}
                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors duration-300 shadow-lg"
@@ -352,13 +521,51 @@ const Profile = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Plan</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                      Free
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      userPlan === 'pro+' ? 'bg-purple-100 text-purple-700' :
+                      userPlan === 'pro' ? 'bg-blue-100 text-blue-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {userPlan === 'pro+' ? 'Pro+' : userPlan === 'pro' ? 'Pro' : 'Free'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Files Processed</span>
-                    <span className="text-sm font-medium text-gray-800">24</span>
+                    <span className="text-sm font-medium text-gray-800">
+                      {(usageSummary?.usage.pdfUploads || 0) + (usageSummary?.usage.pdfReorder || 0) + (usageSummary?.usage.pdfCompress || 0)}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Usage Summary */}
+              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out">
+                <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6">
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                    <Shield className="mr-2 h-5 w-5 text-orange-600" />
+                    Usage Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">PDF Uploads</span>
+                      <span className="text-sm font-medium text-gray-800">
+                        {(usageSummary?.usage.pdfUploads || 0)}/{(usageSummary?.limits.pdfUploads === -1 ? '∞' : usageSummary?.limits.pdfUploads || 0)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">PDF Reorders</span>
+                      <span className="text-sm font-medium text-gray-800">
+                        {(usageSummary?.usage.pdfReorder || 0)}/{(usageSummary?.limits.pdfReorder === -1 ? '∞' : usageSummary?.limits.pdfReorder || 0)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">PDF Compression</span>
+                      <span className="text-sm font-medium text-gray-800">
+                        {(usageSummary?.usage.pdfCompress || 0)}/{(usageSummary?.limits.pdfCompress === -1 ? '∞' : usageSummary?.limits.pdfCompress || 0)}
+                      </span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

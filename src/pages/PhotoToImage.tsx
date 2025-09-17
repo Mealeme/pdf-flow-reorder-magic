@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import { combineImagesToPdf } from "@/utils/conversionUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { canPerformAction, incrementUsage } from "@/utils/usageUtils";
 
 const PhotoToImage = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -65,7 +66,17 @@ const PhotoToImage = () => {
       });
       return;
     }
-    
+
+    // Check usage limits
+    if (!canPerformAction('photoToPdf', user?.email)) {
+      toast({
+        title: "Usage limit exceeded",
+        description: "You've reached your daily conversion limit. Upgrade your plan for more conversions.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsUploading(true);
     setIsConverting(true);
     setConvertedPdfUrl(null);
@@ -93,11 +104,14 @@ const PhotoToImage = () => {
     });
 
     try {
-      const pdfBlob = await combineImagesToPdf(imageFiles);
+      const pdfBlob = await combineImagesToPdf(imageFiles, user?.email);
       const pdfUrl = URL.createObjectURL(pdfBlob);
       setConvertedPdfUrl(pdfUrl);
       setIsConverting(false);
-      
+
+      // Increment usage counter
+      incrementUsage('photoToPdf');
+
       toast({
         title: "Conversion complete",
         description: `${imageFiles.length} ${imageFiles.length === 1 ? 'image has' : 'images have'} been successfully converted to PDF!`,

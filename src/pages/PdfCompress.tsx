@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import { compressPdf } from "@/utils/conversionUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { canPerformAction, incrementUsage } from "@/utils/usageUtils";
 
 const PdfCompress = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -72,6 +73,16 @@ const PdfCompress = () => {
       return;
     }
 
+    // Check usage limits
+    if (!canPerformAction('pdfCompress', user?.email)) {
+      toast({
+        title: "Usage limit exceeded",
+        description: "You've reached your daily compression limit. Upgrade your plan for more compressions.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
     
     toast({
@@ -80,10 +91,13 @@ const PdfCompress = () => {
     });
 
     try {
-      const compressedPdfBlob = await compressPdf(pdfFile, targetSizeKb);
+      const compressedPdfBlob = await compressPdf(pdfFile, targetSizeKb, user?.email);
       const compressedUrl = URL.createObjectURL(compressedPdfBlob);
       setCompressedPdfUrl(compressedUrl);
-      
+
+      // Increment usage counter
+      incrementUsage('pdfCompress');
+
       toast({
         title: "Compression complete",
         description: "Your PDF has been successfully compressed!",

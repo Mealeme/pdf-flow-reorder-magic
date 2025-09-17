@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FileImage, FileText, Compass, Menu, Image, Info, LogOut, User } from "lucide-react";
+import { FileImage, FileText, Compass, Menu, Image, Info, LogOut, User, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -13,15 +13,37 @@ const Navigation: React.FC<NavigationProps> = ({ onMenuClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
-  // Load profile image from localStorage
+  // Load profile photo from API
   useEffect(() => {
-    const savedImage = localStorage.getItem('profileImage');
-    if (savedImage) {
-      setProfileImage(savedImage);
-    }
-  }, []);
+    const loadProfilePhoto = async () => {
+      if (user?.userId) {
+        try {
+          const res = await fetch(`/api/profile/get/${user.userId}`);
+          const profile = await res.json();
+          if (profile?.photoUrl) {
+            setPhotoUrl(profile.photoUrl);
+          }
+        } catch (error) {
+          console.error('Error loading profile photo:', error);
+        }
+      }
+    };
+
+    loadProfilePhoto();
+
+    // Listen for photo update events
+    const handlePhotoUpdate = (event: CustomEvent) => {
+      setPhotoUrl(event.detail);
+    };
+
+    window.addEventListener('profilePhotoUpdated', handlePhotoUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('profilePhotoUpdated', handlePhotoUpdate as EventListener);
+    };
+  }, [user?.userId]);
   
   return (
     <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50">
@@ -107,6 +129,17 @@ const Navigation: React.FC<NavigationProps> = ({ onMenuClick }) => {
               PDF to Text
             </Link>
                          <Link
+               to="/pricing"
+               className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                 location.pathname === "/pricing"
+                   ? "bg-blue-100 text-blue-700 border-2 border-blue-200 shadow-md"
+                   : "text-gray-600 hover:text-blue-600 hover:bg-blue-50 border-2 border-transparent hover:border-blue-200"
+               }`}
+             >
+              <CreditCard className="mr-2 h-4 w-4" />
+              Pricing
+            </Link>
+                         <Link
                to="/footer-info"
                className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg ${
                  location.pathname === "/footer-info"
@@ -126,10 +159,10 @@ const Navigation: React.FC<NavigationProps> = ({ onMenuClick }) => {
                   to="/profile"
                   className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-blue-200 hover:border-blue-300 hover:scale-105 hover:shadow-lg transition-all duration-300 overflow-hidden bg-blue-50"
                 >
-                  {profileImage ? (
-                    <img 
-                      src={profileImage} 
-                      alt="Profile" 
+                  {photoUrl ? (
+                    <img
+                      src={photoUrl}
+                      alt="Profile"
                       className="w-full h-full object-cover"
                     />
                   ) : (
