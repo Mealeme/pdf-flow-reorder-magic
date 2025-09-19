@@ -38,10 +38,38 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
   },
 };
 
+// Test user configuration for development/testing
+const TEST_USERS = {
+  'test-pro-annual': {
+    plan: 'pro',
+    subscriptionType: 'annual',
+    expiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year from now
+    status: 'active',
+    purchasedAt: new Date().toISOString(),
+    paymentId: 'TEST_ANNUAL_PRO_001'
+  },
+  'test-pro-plus-annual': {
+    plan: 'pro+',
+    subscriptionType: 'annual',
+    expiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year from now
+    status: 'active',
+    purchasedAt: new Date().toISOString(),
+    paymentId: 'TEST_ANNUAL_PRO_PLUS_001'
+  },
+  'special-user-id': {
+    plan: 'pro+',
+    subscriptionType: 'monthly',
+    expiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+    status: 'active',
+    purchasedAt: new Date().toISOString(),
+    paymentId: 'SPECIAL_USER_TEST_001'
+  }
+};
+
 export const getCurrentPlan = async (userId?: string): Promise<string> => {
-  // Check for special users first
-  if (userId === 'special-user-id') {
-    return 'pro+';
+  // Check for test users first
+  if (userId && TEST_USERS[userId as keyof typeof TEST_USERS]) {
+    return TEST_USERS[userId as keyof typeof TEST_USERS].plan;
   }
 
   if (!userId) return 'free';
@@ -66,18 +94,34 @@ export const isSubscriptionActive = (subscriptionData: any): boolean => {
   const purchaseDate = new Date(subscriptionData.purchasedAt);
   const now = new Date();
 
-  // For Pro plan (weekly)
+  // For Pro plan (weekly by default, but annual for test users)
   if (subscriptionData.plan === 'pro' || subscriptionData.plan === 'Pro') {
-    const weekLater = new Date(purchaseDate);
-    weekLater.setDate(purchaseDate.getDate() + 7);
-    return now <= weekLater;
+    // Check if it's an annual subscription
+    if (subscriptionData.subscriptionType === 'annual') {
+      const yearLater = new Date(purchaseDate);
+      yearLater.setFullYear(purchaseDate.getFullYear() + 1);
+      return now <= yearLater;
+    } else {
+      // Default to weekly for regular pro plans
+      const weekLater = new Date(purchaseDate);
+      weekLater.setDate(purchaseDate.getDate() + 7);
+      return now <= weekLater;
+    }
   }
 
-  // For Pro+ plan (monthly)
+  // For Pro+ plan (monthly by default, but annual for test users)
   if (subscriptionData.plan === 'pro+' || subscriptionData.plan === 'Pro+') {
-    const monthLater = new Date(purchaseDate);
-    monthLater.setMonth(purchaseDate.getMonth() + 1);
-    return now <= monthLater;
+    // Check if it's an annual subscription
+    if (subscriptionData.subscriptionType === 'annual') {
+      const yearLater = new Date(purchaseDate);
+      yearLater.setFullYear(purchaseDate.getFullYear() + 1);
+      return now <= yearLater;
+    } else {
+      // Default to monthly for regular pro+ plans
+      const monthLater = new Date(purchaseDate);
+      monthLater.setMonth(purchaseDate.getMonth() + 1);
+      return now <= monthLater;
+    }
   }
 
   return false;

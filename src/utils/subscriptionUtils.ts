@@ -42,15 +42,15 @@ export const createFreePlan = async (userId: string) => {
   }
 };
 
-export const upgradePlan = async (userId: string, plan: string, expiry: string, paymentId: string) => {
+export const upgradePlan = async (userId: string, plan: string, expiry: string, paymentId: string, billingPeriod: 'monthly' | 'annual' = 'monthly') => {
   try {
-    console.log("🔄 Upgrading user", userId, "to plan:", plan);
+    console.log("🔄 Upgrading user", userId, "to plan:", plan, "billingPeriod:", billingPeriod);
     const response = await fetch('/api/subscription/upgrade', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId, plan, expiry, paymentId }),
+      body: JSON.stringify({ userId, plan, expiry, paymentId, billingPeriod }),
     });
 
     const data = await response.json();
@@ -59,7 +59,7 @@ export const upgradePlan = async (userId: string, plan: string, expiry: string, 
       throw new Error(data.error || 'Failed to upgrade plan');
     }
 
-    console.log("✅ User upgraded:", userId, "Plan:", plan);
+    console.log("✅ User upgraded:", userId, "Plan:", plan, "Billing Period:", billingPeriod);
     return data;
   } catch (error) {
     console.error('❌ Error upgrading plan:', error);

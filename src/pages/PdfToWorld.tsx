@@ -8,9 +8,12 @@ import FileUploader from "@/components/FileUploader";
 import ProgressBar from "@/components/ProgressBar";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import TypewriterEffect from "@/components/TypewriterEffect";
+import FloatingParticlesBackground, { GravityParticlesBackground } from "@/components/ParticlesBackground";
 import { pdfToText } from "@/utils/conversionUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import ThreeDCube from "@/components/ThreeDCube";
 
 const PdfToWorld = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -129,20 +132,29 @@ const PdfToWorld = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <FloatingParticlesBackground />
+      <ThreeDCube />
       <Navigation onMenuClick={handleToggleMobileMenu} />
-      
-      <main className="flex-grow bg-gradient-to-b from-blue-50 to-white p-4 md:p-8">
+
+      <main className="flex-grow p-4 md:p-8 relative" style={{ zIndex: 10 }}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">PDF to Text Converter</h1>
-            <p className="text-gray-600">Extract text content from your PDF documents</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              <TypewriterEffect
+                text="NewMicro - PDF to Text Converter"
+                speed={80}
+                className="text-white"
+                cursorClassName="text-blue-400"
+              />
+            </h1>
+            <p className="text-gray-300">Extract text content from your PDF documents</p>
           </div>
           
-          <Card className="shadow-lg border-gray-200 mb-6">
+          <Card className="shadow-lg border-gray-600 bg-gray-800/80 backdrop-blur-sm mb-6 glow-border-blue">
             <CardHeader>
-              <CardTitle>Upload PDF</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-white">Upload PDF</CardTitle>
+              <CardDescription className="text-gray-300">
                 The application will extract text content from your PDF
               </CardDescription>
             </CardHeader>
@@ -156,34 +168,34 @@ const PdfToWorld = () => {
               {isUploading && (
                 <div className="mt-4">
                   <ProgressBar progress={uploadProgress} />
-                  <p className="text-center text-sm text-gray-500 mt-2">
+                  <p className="text-center text-sm text-gray-400 mt-2">
                     Uploading: {Math.round(uploadProgress)}%
                   </p>
                 </div>
               )}
               
               {pdfFile && !isUploading && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-md">
-                  <p className="text-sm font-medium">File uploaded:</p>
+                <div className="mt-4 p-4 bg-gray-700 rounded-md border border-gray-600">
+                  <p className="text-sm font-medium text-gray-300">File uploaded:</p>
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center">
-                      <FileText className="h-8 w-8 text-blue-500" />
+                      <FileText className="h-8 w-8 text-blue-400" />
                       <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">{pdfFile.name}</p>
-                        <p className="text-xs text-gray-500">{(pdfFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="text-sm font-medium text-gray-200">{pdfFile.name}</p>
+                        <p className="text-xs text-gray-400">{(pdfFile.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                     </div>
-                    
-                    {isProcessing && <p className="text-sm text-blue-600">Processing...</p>}
+
+                    {isProcessing && <p className="text-sm text-blue-400">Processing...</p>}
                   </div>
                 </div>
               )}
               
               {extractedText && (
                 <div className="mt-6">
-                  <h3 className="text-lg font-medium mb-2">Extracted Text</h3>
-                  <div className="border rounded-md p-4 bg-gray-50 max-h-60 overflow-y-auto">
-                    <pre className="whitespace-pre-wrap text-sm">{extractedText}</pre>
+                  <h3 className="text-lg font-medium mb-2 text-gray-200">Extracted Text</h3>
+                  <div className="border border-gray-600 rounded-md p-4 bg-gray-700 max-h-60 overflow-y-auto">
+                    <pre className="whitespace-pre-wrap text-sm text-gray-200">{extractedText}</pre>
                   </div>
                 </div>
               )}
@@ -201,7 +213,7 @@ const PdfToWorld = () => {
             </CardFooter>
           </Card>
           
-          <div className="mt-8 text-center text-sm text-gray-500">
+          <div className="mt-8 text-center text-sm text-gray-400">
             <p>Your files remain private and are not stored on our servers</p>
           </div>
         </div>
@@ -211,37 +223,38 @@ const PdfToWorld = () => {
       
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" onClick={handleToggleMobileMenu}>
-          <div className="bg-white/95 backdrop-blur-md w-80 h-full p-6 rounded-r-3xl shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/70 z-40 md:hidden backdrop-blur-sm" onClick={handleToggleMobileMenu}>
+          <GravityParticlesBackground isMobileMenu={true} />
+          <div className="bg-gray-800/95 backdrop-blur-md w-80 h-full p-6 rounded-r-3xl shadow-2xl flex flex-col relative z-20" onClick={e => e.stopPropagation()}>
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-800">Menu</h2>
+              <h2 className="text-2xl font-bold text-white">Menu</h2>
               <button
                 onClick={handleToggleMobileMenu}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                className="p-2 hover:bg-gray-700 rounded-lg transition-colors duration-200"
               >
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
               <ul className="space-y-4 pb-4">
                  {/* PDF Tools */}
                  <li className="pt-2">
                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-4">PDF Tools</h3>
                  </li>
-                 <li><button onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">PDF Reordering</button></li>
-                 <li><button onClick={() => { navigate('/pdf-compress'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">PDF Compression</button></li>
-                 <li><button onClick={() => { navigate('/pdf-to-world'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 bg-blue-50 text-blue-600 rounded-xl border-2 border-blue-200 font-medium text-left">PDF to World</button></li>
-                 <li><button onClick={() => { navigate('/photo-to-image'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">Photo to PDF</button></li>
+                 <li><button onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-900/30 hover:text-blue-400 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left text-gray-300">PDF Reordering</button></li>
+                 <li><button onClick={() => { navigate('/pdf-compress'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-900/30 hover:text-blue-400 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left text-gray-300">PDF Compression</button></li>
+                 <li><button onClick={() => { navigate('/pdf-to-world'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 bg-blue-900/50 text-blue-400 rounded-xl border-2 border-blue-600 font-medium text-left">PDF to World</button></li>
+                 <li><button onClick={() => { navigate('/photo-to-image'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-900/30 hover:text-blue-400 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left text-gray-300">Photo to PDF</button></li>
                  
                  {/* Information */}
                  <li className="pt-4">
                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-4">Information</h3>
                  </li>
-                 <li><button onClick={() => { navigate('/footer-info'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">About Us</button></li>
-                 <li><button onClick={() => { navigate('/footer-info'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">Contact & Support</button></li>
-                 <li><button onClick={() => { navigate('/privacy-policy'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left">Privacy Policy</button></li>
+                 <li><button onClick={() => { navigate('/footer-info'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-900/30 hover:text-blue-400 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left text-gray-300">About Us</button></li>
+                 <li><button onClick={() => { navigate('/footer-info'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-900/30 hover:text-blue-400 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left text-gray-300">Contact & Support</button></li>
+                 <li><button onClick={() => { navigate('/privacy-policy'); setIsMobileMenuOpen(false); }} className="block w-full py-3 px-4 hover:bg-blue-900/30 hover:text-blue-400 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left text-gray-300">Privacy Policy</button></li>
                                  {isAuthenticated ? (
                    <>
                      {/* Account */}
@@ -254,20 +267,16 @@ const PdfToWorld = () => {
                            navigate('/profile');
                            setIsMobileMenuOpen(false);
                          }}
-                         className="block w-full py-3 px-4 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left"
+                         className="block w-full py-3 px-4 hover:bg-blue-900/30 hover:text-blue-400 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left text-gray-300"
                        >
                          <div className="flex items-center">
-                           {profileImage ? (
-                             <div className="w-8 h-8 rounded-full overflow-hidden mr-3 flex-shrink-0 border-2 border-blue-200">
-                               <img 
-                                 src={profileImage} 
-                                 alt="Profile" 
-                                 className="w-full h-full object-cover"
-                               />
-                             </div>
-                           ) : (
-                             <User className="mr-3 h-4 w-4 flex-shrink-0" />
-                           )}
+                           <div className="w-8 h-8 rounded-full overflow-hidden mr-3 flex-shrink-0 border-2 border-blue-600">
+                             <img
+                               src="/favicon.svg"
+                               alt="Profile"
+                               className="w-full h-full object-cover"
+                             />
+                           </div>
                            <span className="truncate">My Profile</span>
                          </div>
                        </button>
@@ -275,7 +284,7 @@ const PdfToWorld = () => {
                      <li>
                        <button
                          onClick={logout}
-                         className="block w-full py-3 px-4 hover:bg-red-50 hover:text-red-600 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left"
+                         className="block w-full py-3 px-4 hover:bg-red-900/30 hover:text-red-400 hover:scale-105 hover:shadow-md rounded-xl transition-all duration-300 font-medium text-left text-gray-300"
                        >
                          <div className="flex items-center">
                            <LogOut className="mr-3 h-4 w-4" />
@@ -291,7 +300,7 @@ const PdfToWorld = () => {
                         navigate('/login');
                         setIsMobileMenuOpen(false);
                       }}
-                      className="block w-full py-3 px-4 bg-blue-50 text-blue-600 rounded-xl border-2 border-blue-200 font-medium hover:bg-blue-100 hover:scale-105 transition-all duration-300"
+                      className="block w-full py-3 px-4 bg-blue-900/50 text-blue-400 rounded-xl border-2 border-blue-600 font-medium hover:bg-blue-800/60 hover:scale-105 transition-all duration-300"
                     >
                       <div className="flex items-center">
                         <FileText className="mr-3 h-4 w-4" />

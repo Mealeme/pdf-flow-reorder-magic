@@ -55,28 +55,28 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
-           <Route path="/" element={<Index />} />
-           <Route path="/photo-to-image" element={<PhotoToImage />} />
-           <Route path="/pdf-compress" element={<PdfCompress />} />
-           <Route path="/pdf-to-world" element={<PdfToWorld />} />
-           <Route path="/pricing" element={<Pricing />} />
-           <Route path="/footer-info" element={<FooterInfo />} />
-           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-           <Route path="/terms-of-service" element={<TermsOfService />} />
-           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-           <Route path="/cancellation-refund" element={<CancellationRefund />} />
-           <Route path="/login" element={<Login />} />
-           <Route path="/profile" element={
-             <ProtectedRoute>
-               <Profile />
-             </ProtectedRoute>
-           } />
-           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-           <Route path="*" element={<NotFound />} />
-         </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/photo-to-image" element={<PhotoToImage />} />
+          <Route path="/pdf-compress" element={<PdfCompress />} />
+          <Route path="/pdf-to-world" element={<PdfToWorld />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/footer-info" element={<FooterInfo />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/cancellation-refund" element={<CancellationRefund />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

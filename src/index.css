@@ -79,15 +79,24 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+
+    --sidebar-background: 222.2 84% 4.9%;
+
+    --sidebar-foreground: 210 40% 98%;
+
+    --sidebar-primary: 210 40% 98%;
+
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
+
+    --sidebar-accent: 217.2 32.6% 17.5%;
+
+    --sidebar-accent-foreground: 210 40% 98%;
+
+    --sidebar-border: 217.2 32.6% 17.5%;
+
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
 }
 
 @layer base {
@@ -97,5 +106,156 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Gravity particles animation */
+@keyframes gravity {
+  0% {
+    transform: translateY(-10px) translateX(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(110vh) translateX(20px) rotate(360deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+.animate-gravity {
+  animation: gravity linear infinite;
+}
+
+/* Glow border effect */
+.glow-border {
+  position: relative;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow:
+    0 0 20px rgba(59, 130, 246, 0.1),
+    0 0 40px rgba(59, 130, 246, 0.05),
+    inset 0 0 20px rgba(59, 130, 246, 0.02);
+}
+
+.glow-border:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow:
+    0 0 30px rgba(59, 130, 246, 0.2),
+    0 0 60px rgba(59, 130, 246, 0.1),
+    inset 0 0 30px rgba(59, 130, 246, 0.05);
+}
+
+.glow-border-blue {
+  position: relative;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow:
+    0 0 25px rgba(59, 130, 246, 0.15),
+    0 0 50px rgba(59, 130, 246, 0.08),
+    inset 0 0 25px rgba(59, 130, 246, 0.03);
+}
+
+.glow-border-blue:hover {
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow:
+    0 0 35px rgba(59, 130, 246, 0.25),
+    0 0 70px rgba(59, 130, 246, 0.15),
+    inset 0 0 35px rgba(59, 130, 246, 0.08);
+}
+
+/* 3D Cube Styles */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.translate-z-16 {
+  transform: translateZ(64px);
+}
+
+.translate-z--16 {
+  transform: translateZ(-64px);
+}
+
+.translate-z-12 {
+  transform: translateZ(48px);
+}
+
+.translate-z--12 {
+  transform: translateZ(-48px);
+}
+
+.translate-x-16 {
+  transform: translateX(64px);
+}
+
+.translate-x--16 {
+  transform: translateX(-64px);
+}
+
+.translate-x-12 {
+  transform: translateX(48px);
+}
+
+.translate-x--12 {
+  transform: translateX(-48px);
+}
+
+.translate-y--16 {
+  transform: translateY(-64px);
+}
+
+.translate-y-16 {
+  transform: translateY(64px);
+}
+
+.translate-y--12 {
+  transform: translateY(-48px);
+}
+
+.translate-y-12 {
+  transform: translateY(48px);
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.rotate-y-90 {
+  transform: rotateY(90deg);
+}
+
+.rotate-y--90 {
+  transform: rotateY(-90deg);
+}
+
+.rotate-x-90 {
+  transform: rotateX(90deg);
+}
+
+.rotate-x--90 {
+  transform: rotateX(-90deg);
+}
+
+.animate-spin-slow {
+  animation: spin 20s linear infinite;
+}
+
+.animate-spin-reverse-slow {
+  animation: spin-reverse 25s linear infinite;
+}
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
   }
 }

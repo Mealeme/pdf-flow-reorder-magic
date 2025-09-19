@@ -77,6 +77,7 @@ const createFreePlan = async (userId) => {
       expiry: null,
       paymentId: null,
       purchasedAt: new Date().toISOString(),
+      billingPeriod: "monthly",
       limits: {
         daily: 1,
         fileSize: 50,
@@ -115,21 +116,51 @@ const createFreePlan = async (userId) => {
   }
 };
 
-const upgradePlan = async (userId, plan, expiry, paymentId) => {
-  console.log("🔄 Starting upgrade process for user:", userId, "to plan:", plan, "paymentId:", paymentId);
+const upgradePlan = async (userId, plan, expiry, paymentId, billingPeriod = 'monthly') => {
+  console.log("🔄 Starting upgrade process for user:", userId, "to plan:", plan, "paymentId:", paymentId, "billingPeriod:", billingPeriod);
+
+  // Log billing period details
+  console.log("💰 Payment Details:");
+  console.log("   Billing Period:", billingPeriod);
+  console.log("   Plan Type:", plan);
+  console.log("   Payment ID:", paymentId);
 
   // Calculate expiry if not provided
   let calculatedExpiry = expiry;
   if (!calculatedExpiry) {
     const now = new Date();
+    console.log("📅 Calculating expiry for", plan, "plan with", billingPeriod, "billing");
+
     if (plan === 'pro') {
-      // Pro plan: 7 days
-      calculatedExpiry = Math.floor((now.getTime() + 7 * 24 * 60 * 60 * 1000) / 1000);
+      // Pro plan: 7 days (weekly) or 365 days (annual)
+      const daysToAdd = billingPeriod === 'annual' ? 365 : 7;
+      calculatedExpiry = Math.floor((now.getTime() + daysToAdd * 24 * 60 * 60 * 1000) / 1000);
+      console.log("📊 Pro plan calculation:");
+      console.log("   Days to add:", daysToAdd);
+      console.log("   Current time:", now.toISOString());
+      console.log("   Calculated expiry:", new Date(calculatedExpiry * 1000).toISOString());
     } else if (plan === 'pro+') {
-      // Pro+ plan: 30 days
-      calculatedExpiry = Math.floor((now.getTime() + 30 * 24 * 60 * 60 * 1000) / 1000);
+      // Pro+ plan: 30 days (monthly) or 365 days (annual)
+      const daysToAdd = billingPeriod === 'annual' ? 365 : 30;
+      calculatedExpiry = Math.floor((now.getTime() + daysToAdd * 24 * 60 * 60 * 1000) / 1000);
+      console.log("📊 Pro+ plan calculation:");
+      console.log("   Days to add:", daysToAdd);
+      console.log("   Current time:", now.toISOString());
+      console.log("   Calculated expiry:", new Date(calculatedExpiry * 1000).toISOString());
     }
-    console.log("📅 Calculated expiry for", plan, "plan:", new Date(calculatedExpiry * 1000).toISOString());
+
+    // Verify annual calculation
+    if (billingPeriod === 'annual') {
+      const daysDifference = Math.floor((calculatedExpiry - Math.floor(now.getTime() / 1000)) / (24 * 60 * 60));
+      console.log("✅ Annual plan verification:");
+      console.log("   Expected days: 365");
+      console.log("   Calculated days:", daysDifference);
+      if (daysDifference >= 364 && daysDifference <= 366) {
+        console.log("   ✓ Expiry calculation correct for annual plan");
+      } else {
+        console.log("   ❌ ERROR: Expiry calculation incorrect for annual plan");
+      }
+    }
   }
 
   const planLimits = {
@@ -160,10 +191,18 @@ const upgradePlan = async (userId, plan, expiry, paymentId) => {
   }
 
   console.log("💾 Updating Subscriptions table for user:", userId);
+  console.log("📋 Data to be stored:");
+  console.log("   Plan:", plan);
+  console.log("   Billing Period:", billingPeriod);
+  console.log("   Expiry:", calculatedExpiry ? new Date(calculatedExpiry * 1000).toISOString() : "null");
+  console.log("   Payment ID:", paymentId);
+  console.log("   Status: active");
+  console.log("   Limits:", JSON.stringify(planLimits[plan], null, 2));
+
   await ddb.send(new UpdateCommand({
     TableName: "Subscriptions",
     Key: { userId },
-    UpdateExpression: "SET #plan = :p, expiry = :e, paymentId = :r, limits = :l, #status = :s, purchasedAt = :pt",
+    UpdateExpression: "SET #plan = :p, expiry = :e, paymentId = :r, limits = :l, #status = :s, purchasedAt = :pt, billingPeriod = :bp",
     ExpressionAttributeNames: {
       "#plan": "plan",
       "#status": "status"
@@ -174,10 +213,49 @@ const upgradePlan = async (userId, plan, expiry, paymentId) => {
       ":r": paymentId,
       ":l": planLimits[plan],
       ":s": "active",
-      ":pt": new Date().toISOString()
+      ":pt": new Date().toISOString(),
+      ":bp": billingPeriod
     }
   }));
   console.log("✅ Subscriptions table updated successfully for user:", userId);
+
+  // Verify the data was stored correctly
+  console.log("🔍 Verifying data storage...");
+  const verifyData = await ddb.send(new GetCommand({
+    TableName: "Subscriptions",
+    Key: { userId }
+  }));
+
+  if (verifyData.Item) {
+    console.log("✅ Verification successful:");
+    console.log("   Stored Plan:", verifyData.Item.plan);
+    console.log("   Stored Billing Period:", verifyData.Item.billingPeriod);
+    console.log("   Stored Expiry:", verifyData.Item.expiry ? new Date(verifyData.Item.expiry * 1000).toISOString() : "null");
+    console.log("   Stored Payment ID:", verifyData.Item.paymentId);
+    console.log("   Stored Status:", verifyData.Item.status);
+
+    // Check if billing period matches
+    if (verifyData.Item.billingPeriod === billingPeriod) {
+      console.log("✅ Billing period stored correctly");
+    } else {
+      console.log("❌ ERROR: Billing period mismatch!");
+      console.log("   Expected:", billingPeriod);
+      console.log("   Stored:", verifyData.Item.billingPeriod);
+    }
+
+    // Check if expiry is reasonable for annual plans
+    if (billingPeriod === 'annual' && verifyData.Item.expiry) {
+      const daysRemaining = Math.floor((verifyData.Item.expiry - Math.floor(Date.now() / 1000)) / (24 * 60 * 60));
+      console.log("   Days remaining for annual plan:", daysRemaining);
+      if (daysRemaining >= 360 && daysRemaining <= 370) {
+        console.log("✅ Annual expiry duration correct");
+      } else {
+        console.log("❌ ERROR: Annual expiry duration incorrect");
+      }
+    }
+  } else {
+    console.log("❌ ERROR: Could not verify stored data");
+  }
 
   // Transfer existing UserUsage data or create new record for upgraded user
   console.log("📊 Transferring UserUsage data for upgraded user:", userId);
@@ -251,17 +329,27 @@ const isSubscriptionExpired = (subscription) => {
 
   const purchaseDate = new Date(subscription.purchasedAt);
 
-  // For Pro plan (7 days)
+  // For Pro plan (7 days weekly or 52 weeks annual)
   if (subscription.plan === 'pro') {
     const expiryDate = new Date(purchaseDate);
-    expiryDate.setDate(purchaseDate.getDate() + 7);
+    // Default to weekly for backward compatibility if billingPeriod is missing
+    if (subscription.billingPeriod === 'annual') {
+      expiryDate.setFullYear(purchaseDate.getFullYear() + 1);
+    } else {
+      expiryDate.setDate(purchaseDate.getDate() + 7);
+    }
     return now > expiryDate;
   }
 
-  // For Pro+ plan (30 days)
+  // For Pro+ plan (30 days monthly or 365 days annual)
   if (subscription.plan === 'pro+') {
     const expiryDate = new Date(purchaseDate);
-    expiryDate.setMonth(purchaseDate.getMonth() + 1);
+    // Default to monthly for backward compatibility if billingPeriod is missing
+    if (subscription.billingPeriod === 'annual') {
+      expiryDate.setFullYear(purchaseDate.getFullYear() + 1);
+    } else {
+      expiryDate.setMonth(purchaseDate.getMonth() + 1);
+    }
     return now > expiryDate;
   }
 
@@ -391,6 +479,15 @@ const getUserSubscription = async (userId) => {
     if (data.Item.plan === 'pro' && data.Item.limits) {
       console.log("🔄 Overriding daily limit for pro user from", data.Item.limits.daily, "to 5");
       data.Item.limits.daily = 5;
+    }
+
+    // Fix limits for existing subscriptions that may have wrong data
+    if (data.Item.plan === 'pro+' && data.Item.limits) {
+      // Ensure Pro+ has unlimited daily usage
+      if (data.Item.limits.daily !== "unlimited") {
+        console.log("🔄 Fixing Pro+ daily limit from", data.Item.limits.daily, "to unlimited");
+        data.Item.limits.daily = "unlimited";
+      }
     }
 
     return data.Item;
@@ -526,15 +623,15 @@ app.post("/api/subscription/upgrade", async (req, res) => {
   console.log("📨 Received request to /api/subscription/upgrade");
   console.log("📋 Request body:", req.body);
   try {
-    const { userId, plan, expiry, paymentId } = req.body;
+    const { userId, plan, expiry, paymentId, billingPeriod = 'monthly' } = req.body;
 
     if (!userId || !plan) {
       console.error("❌ Missing required parameters: userId or plan");
       return res.status(400).json({ error: "userId and plan are required" });
     }
 
-    console.log("🔄 Upgrading user", userId, "to plan:", plan, "with paymentId:", paymentId);
-    await upgradePlan(userId, plan, expiry, paymentId);
+    console.log("🔄 Upgrading user", userId, "to plan:", plan, "with paymentId:", paymentId, "billingPeriod:", billingPeriod);
+    await upgradePlan(userId, plan, expiry, paymentId, billingPeriod);
 
     // Verify the upgrade worked
     const updatedSubscription = await getUserSubscription(userId);
@@ -618,13 +715,13 @@ app.post("/api/test/create-subscription/:userId", async (req, res) => {
   console.log("🧪 TEST: Creating subscription for user:", req.params.userId);
   try {
     const userId = req.params.userId;
-    const { plan = 'free' } = req.body;
+    const { plan = 'free', billingPeriod = 'monthly' } = req.body;
 
     if (plan === 'free') {
       await createFreePlan(userId);
     } else {
-      // For testing, create a basic pro subscription with calculated expiry
-      await upgradePlan(userId, plan, null, 'test-payment-' + Date.now());
+      // For testing, create subscription with specified billing period
+      await upgradePlan(userId, plan, null, 'test-payment-' + Date.now(), billingPeriod);
     }
 
     // Verify creation
@@ -637,11 +734,71 @@ app.post("/api/test/create-subscription/:userId", async (req, res) => {
 
     res.json({
       success: true,
-      message: `Created ${plan} subscription for ${userId}`,
+      message: `Created ${plan} subscription (${billingPeriod}) for ${userId}`,
       subscription: subscription
     });
   } catch (error) {
     console.error("❌ Error in test subscription creation:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Test endpoint specifically for annual payments
+app.post("/api/test/annual-payment/:userId", async (req, res) => {
+  console.log("🧪 TEST: Testing annual payment for user:", req.params.userId);
+  try {
+    const userId = req.params.userId;
+    const { plan = 'pro' } = req.body;
+
+    console.log("💰 Testing annual payment flow:");
+    console.log("   User ID:", userId);
+    console.log("   Plan:", plan);
+    console.log("   Billing Period: annual");
+
+    // Create annual subscription
+    await upgradePlan(userId, plan, null, 'annual-test-payment-' + Date.now(), 'annual');
+
+    // Verify the subscription
+    const subscription = await getUserSubscription(userId);
+
+    // Calculate days remaining
+    let daysRemaining = 0;
+    if (subscription && subscription.expiry) {
+      const now = new Date();
+      const expiryDate = new Date(subscription.expiry * 1000);
+      daysRemaining = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    // Override daily limit for pro users in the response
+    if (subscription && subscription.plan === 'pro' && subscription.limits) {
+      subscription.limits.daily = 5;
+    }
+
+    const verification = {
+      billingPeriodCorrect: subscription?.billingPeriod === 'annual',
+      expiryReasonable: daysRemaining >= 360 && daysRemaining <= 370,
+      planCorrect: subscription?.plan === plan,
+      statusCorrect: subscription?.status === 'active',
+      daysRemaining: daysRemaining,
+      expiryDate: subscription?.expiry ? new Date(subscription.expiry * 1000).toISOString() : null
+    };
+
+    console.log("✅ Annual payment verification:");
+    console.log("   Billing Period Correct:", verification.billingPeriodCorrect);
+    console.log("   Expiry Reasonable:", verification.expiryReasonable);
+    console.log("   Plan Correct:", verification.planCorrect);
+    console.log("   Status Correct:", verification.statusCorrect);
+    console.log("   Days Remaining:", verification.daysRemaining);
+
+    res.json({
+      success: true,
+      message: `Annual ${plan} subscription test completed`,
+      subscription: subscription,
+      verification: verification,
+      allTestsPassed: Object.values(verification).every(v => v === true || typeof v === 'number' || typeof v === 'string')
+    });
+  } catch (error) {
+    console.error("❌ Error in annual payment test:", error);
     res.status(500).json({ error: error.message });
   }
 });

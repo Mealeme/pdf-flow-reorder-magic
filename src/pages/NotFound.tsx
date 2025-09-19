@@ -2,6 +2,8 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Footer from "@/components/Footer";
 import Navigation from "@/components/Navigation";
+import ThreeDCube from "@/components/ThreeDCube";
+import FloatingParticlesBackground from "@/components/ParticlesBackground";
 
 const NotFound = () => {
   const location = useLocation();
@@ -15,9 +17,11 @@ const NotFound = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <Navigation />
+      <FloatingParticlesBackground />
+      <ThreeDCube />
+      <Navigation onMenuClick={() => {}} />
       
-      <main className="flex-grow flex items-center justify-center p-4 md:p-8">
+      <main className="flex-grow flex items-center justify-center p-4 md:p-8 relative" style={{ zIndex: 10 }}>
         <div className="text-center max-w-2xl mx-auto">
           <div className="w-24 h-24 bg-gradient-to-r from-red-400 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

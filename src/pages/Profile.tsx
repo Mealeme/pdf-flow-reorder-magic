@@ -3,27 +3,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  User, 
-  Mail, 
-  Calendar, 
-  MapPin, 
-  Phone, 
-  Edit, 
-  Save, 
-  X, 
+import {
+  User,
+  Mail,
+  Calendar,
+  MapPin,
+  Phone,
+  Edit,
+  Save,
+  X,
   Shield,
   LogOut,
   ArrowLeft,
   Camera,
-  Upload
+  Upload,
+  Key,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import ThreeDCube from "@/components/ThreeDCube";
+import AddressInput from "@/components/AddressInput";
 import { useToast } from "@/components/ui/use-toast";
 import { getUsageSummary, getCurrentPlan } from "@/utils/usageUtils";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import FloatingParticlesBackground from "@/components/ParticlesBackground";
 
 const Profile = () => {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -32,17 +38,19 @@ const Profile = () => {
   
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [showUserId, setShowUserId] = useState(false);
   const [profileData, setProfileData] = useState({
-    firstName: "John",
-    lastName: "Doe",
+    firstName: "",
+    lastName: "",
     email: user?.email || "",
-    phone: "+1 (555) 123-4567",
-    location: "New York, NY",
-    joinDate: "January 2024",
-    bio: "PDF enthusiast and document management specialist. Love working with NewMicro tools!"
+    phone: "",
+    location: "",
+    joinDate: "",
+    bio: "",
+    userId: user?.userId || ""
   });
 
-  // Update email when user changes
+  // Update email and userId when user changes
   React.useEffect(() => {
     if (user?.email && profileData.email !== user.email) {
       setProfileData(prev => ({
@@ -50,7 +58,13 @@ const Profile = () => {
         email: user.email
       }));
     }
-  }, [user?.email, profileData.email]);
+    if (user?.userId && profileData.userId !== user.userId) {
+      setProfileData(prev => ({
+        ...prev,
+        userId: user.userId
+      }));
+    }
+  }, [user?.email, user?.userId, profileData.email, profileData.userId]);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [usageSummary, setUsageSummary] = useState(null);
   const [userPlan, setUserPlan] = useState('free');
@@ -63,17 +77,30 @@ const Profile = () => {
           const res = await fetch(`/api/profile/get/${user.userId}`);
           const profile = await res.json();
           if (profile && Object.keys(profile).length > 0) {
+            const joinDate = profile.joinDate || new Date().toLocaleDateString();
             setProfileData({
-              firstName: profile.firstName || "John",
-              lastName: profile.lastName || "Doe",
+              firstName: profile.firstName || "",
+              lastName: profile.lastName || "",
               email: user.email || profile.email || "",
-              phone: profile.phone || "+1 (555) 123-4567",
-              location: profile.location || "New York, NY",
-              joinDate: profile.joinDate || "January 2024",
-              bio: profile.bio || "PDF enthusiast and document management specialist. Love working with NewMicro tools!"
+              phone: profile.phone || "",
+              location: profile.location || "",
+              joinDate,
+              bio: profile.bio || "",
+              userId: user.userId || ""
             });
             if (profile.photoUrl) {
               setPhotoUrl(profile.photoUrl);
+            }
+            // If joinDate was not present, save it
+            if (!profile.joinDate) {
+              await fetch("/api/profile/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  userId: user.userId,
+                  joinDate
+                })
+              });
             }
           } else {
             // Set default data with user's email
@@ -84,10 +111,16 @@ const Profile = () => {
           }
         } catch (error) {
           console.error('Error loading profile:', error);
-          // Fallback to default
+          // Fallback to blank profile
           setProfileData(prev => ({
-            ...prev,
+            firstName: "",
+            lastName: "",
             email: user?.email || "",
+            phone: "",
+            location: "",
+            joinDate: "",
+            bio: "",
+            userId: user?.userId || ""
           }));
         }
       }
@@ -106,12 +139,12 @@ const Profile = () => {
         } catch (error) {
           console.error('Error loading plan:', error);
           setUserPlan('free');
-          // Fallback to default usage
+          // Fallback to blank usage
           setUsageSummary({
             plan: 'free',
-            limits: { pdfUploads: 1, pdfCompress: 1, pdfReorder: 1, photoToPdf: 1, dailyReset: true },
+            limits: { pdfUploads: 0, pdfCompress: 0, pdfReorder: 0, photoToPdf: 0, dailyReset: true },
             usage: { pdfUploads: 0, pdfCompress: 0, pdfReorder: 0, photoToPdf: 0, lastReset: new Date().toISOString() },
-            remaining: { pdfUploads: 1, pdfCompress: 1, pdfReorder: 1, photoToPdf: 1 }
+            remaining: { pdfUploads: 0, pdfCompress: 0, pdfReorder: 0, photoToPdf: 0 }
           });
         }
       }
@@ -132,12 +165,12 @@ const Profile = () => {
   // Show loading spinner while checking authentication
   if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <Navigation onMenuClick={() => {}} />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your profile...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+            <p className="text-gray-300">Loading your profile...</p>
           </div>
         </main>
         <Footer />
@@ -267,10 +300,12 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <FloatingParticlesBackground />
+      <ThreeDCube />
       <Navigation onMenuClick={() => {}} />
       
-      <main className="flex-grow p-4 md:p-8">
+      <main className="flex-grow p-4 md:p-8 relative" style={{ zIndex: 10 }}>
         <div className="max-w-4xl mx-auto">
           {/* Back to Home Button */}
           <Button
@@ -284,71 +319,82 @@ const Profile = () => {
 
           <div className="grid gap-6 md:grid-cols-3">
                          {/* Profile Header Card */}
-             <Card className="md:col-span-3 shadow-2xl border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-3xl transition-all duration-500 ease-out">
-               <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white text-center">
-                 <div className="relative w-24 h-24 mx-auto mb-4">
-                   {photoUrl ? (
-                     <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white/30 shadow-lg hover:scale-110 transition-transform duration-300">
-                       <img
-                         src={photoUrl}
-                         alt="Profile"
-                         className="w-full h-full object-cover"
+             <Card className="md:col-span-3 shadow-2xl border-0 bg-gradient-to-br from-gray-800/90 via-gray-900/90 to-black/90 backdrop-blur-xl rounded-3xl overflow-hidden hover:shadow-3xl transition-all duration-500 ease-out glow-border">
+               <CardContent className="p-8 text-center relative">
+                 {/* Subtle background pattern */}
+                 <div className="absolute inset-0 opacity-5">
+                   <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full blur-3xl"></div>
+                   <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-green-500 to-blue-600 rounded-full blur-2xl"></div>
+                 </div>
+
+                 <div className="relative z-10">
+                   <div className="relative w-28 h-28 mx-auto mb-6 group">
+                     <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-gray-600/50 shadow-2xl hover:scale-110 transition-all duration-500 ease-out ring-4 ring-gray-700/30 hover:ring-blue-500/30">
+                       {photoUrl ? (
+                         <img
+                           src={photoUrl}
+                           alt="Profile"
+                           className="w-full h-full object-cover"
+                         />
+                       ) : (
+                         <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center">
+                           <User className="w-10 h-10 text-gray-300" />
+                         </div>
+                       )}
+                     </div>
+
+                     {/* Loading overlay */}
+                     {uploadingPhoto && (
+                       <div className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
+                         <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+                       </div>
+                     )}
+
+                     {/* Image upload overlay - Hidden by default, shown on hover */}
+                     <div className="absolute -bottom-1 -right-1 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out">
+                       <label htmlFor="profile-image-upload" className={`cursor-pointer ${uploadingPhoto ? 'pointer-events-none opacity-50' : ''}`}>
+                         <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110 transform group-hover:translate-y-0 translate-y-2">
+                           <Camera className="w-5 h-5 text-white" />
+                         </div>
+                       </label>
+                       <input
+                         id="profile-image-upload"
+                         type="file"
+                         accept="image/*"
+                         onChange={handleImageUpload}
+                         disabled={uploadingPhoto}
+                         className="hidden"
                        />
                      </div>
-                   ) : (
-                     <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300">
-                       <User className="w-12 h-12" />
-                     </div>
-                   )}
 
-                   {/* Loading overlay */}
-                   {uploadingPhoto && (
-                     <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
-                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                     </div>
-                   )}
-
-                   {/* Image upload overlay */}
-                   <div className="absolute -bottom-2 -right-2">
-                     <label htmlFor="profile-image-upload" className={`cursor-pointer ${uploadingPhoto ? 'pointer-events-none opacity-50' : ''}`}>
-                       <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors duration-300 shadow-lg">
-                         <Camera className="w-4 h-4 text-white" />
-                       </div>
-                     </label>
-                     <input
-                       id="profile-image-upload"
-                       type="file"
-                       accept="image/*"
-                       onChange={handleImageUpload}
-                       disabled={uploadingPhoto}
-                       className="hidden"
-                     />
+                     {/* Remove image button - Hidden by default, shown on hover */}
+                     {photoUrl && (
+                       <button
+                         onClick={removeProfileImage}
+                         className="absolute -top-1 -left-1 w-8 h-8 bg-gradient-to-r from-red-500 to-pink-600 rounded-full flex items-center justify-center hover:from-red-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110 opacity-0 group-hover:opacity-100 transform group-hover:translate-y-0 -translate-y-2 transition-all duration-300 ease-out"
+                       >
+                         <X className="w-4 h-4 text-white" />
+                       </button>
+                     )}
                    </div>
-                   
-                   {/* Remove image button */}
-                   {photoUrl && (
-                     <button
-                       onClick={removeProfileImage}
-                       className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors duration-300 shadow-lg"
-                     >
-                       <X className="w-3 h-3 text-white" />
-                     </button>
-                   )}
+
+                   <CardTitle className="text-4xl font-bold mb-3 bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
+                     Profile
+                   </CardTitle>
+                   <CardDescription className="text-gray-400 text-lg max-w-md mx-auto leading-relaxed">
+                     Manage your account information and preferences with style
+                   </CardDescription>
                  </div>
-                 <CardTitle className="text-3xl font-bold mb-2">Profile</CardTitle>
-                 <CardDescription className="text-blue-100 text-lg">
-                   Manage your account information and preferences
-                 </CardDescription>
-               </CardHeader>
+               </CardContent>
              </Card>
 
             {/* Profile Information */}
-            <Card className="md:col-span-2 shadow-xl border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out">
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 p-6">
+            <Card className="md:col-span-2 shadow-xl border-0 bg-gray-800/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out glow-border">
+              <CardHeader className="bg-gradient-to-r from-gray-700 to-gray-600 p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-2xl font-bold text-gray-800">Personal Information</CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardTitle className="text-2xl font-bold text-white">Personal Information</CardTitle>
+                    <CardDescription className="text-gray-300">
                       Update your profile details and contact information
                     </CardDescription>
                   </div>
@@ -372,7 +418,7 @@ const Profile = () => {
                       <Button
                         onClick={handleCancel}
                         variant="outline"
-                        className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl hover:scale-105 transition-all duration-300"
+                        className="border-gray-500 text-gray-300 hover:bg-gray-700 hover:border-gray-400 rounded-xl hover:scale-105 transition-all duration-300"
                       >
                         <X className="mr-2 h-4 w-4" />
                         Cancel
@@ -385,8 +431,8 @@ const Profile = () => {
               <CardContent className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 flex items-center">
-                      <User className="mr-2 h-4 w-4" />
+                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-300 flex items-center">
+                      <User className="mr-2 h-4 w-4 text-gray-400" />
                       First Name
                     </Label>
                     {isEditing ? (
@@ -394,18 +440,18 @@ const Profile = () => {
                         id="firstName"
                         value={profileData.firstName}
                         onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
-                        className="h-12 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                        className="h-12 rounded-xl border-2 border-gray-600 bg-gray-700 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
                       />
                     ) : (
-                      <div className="h-12 px-4 bg-gray-50 rounded-xl flex items-center text-gray-700 font-medium">
+                      <div className="h-12 px-4 bg-gray-700 rounded-xl flex items-center text-gray-200 font-medium border border-gray-600">
                         {profileData.firstName}
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 flex items-center">
-                      <User className="mr-2 h-4 w-4" />
+                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-300 flex items-center">
+                      <User className="mr-2 h-4 w-4 text-gray-400" />
                       Last Name
                     </Label>
                     {isEditing ? (
@@ -413,28 +459,61 @@ const Profile = () => {
                         id="lastName"
                         value={profileData.lastName}
                         onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
-                        className="h-12 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                        className="h-12 rounded-xl border-2 border-gray-600 bg-gray-700 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
                       />
                     ) : (
-                      <div className="h-12 px-4 bg-gray-50 rounded-xl flex items-center text-gray-700 font-medium">
+                      <div className="h-12 px-4 bg-gray-700 rounded-xl flex items-center text-gray-200 font-medium border border-gray-600">
                         {profileData.lastName}
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-gray-700 flex items-center">
-                      <Mail className="mr-2 h-4 w-4" />
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="userId" className="text-sm font-medium text-gray-300 flex items-center">
+                        <Key className="mr-2 h-4 w-4 text-gray-400" />
+                        User ID
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowUserId(!showUserId)}
+                        className="text-gray-400 hover:text-gray-200 hover:bg-gray-700 px-3 py-1 h-auto text-xs flex items-center space-x-1"
+                      >
+                        {showUserId ? (
+                          <>
+                            <EyeOff className="h-3 w-3" />
+                            <span>Hide ID</span>
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-3 w-3" />
+                            <span>Show ID</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {showUserId && (
+                      <div className="h-12 px-4 bg-gray-700 rounded-xl flex items-center text-gray-200 font-medium border border-gray-600 font-mono text-sm animate-in fade-in-0 duration-200">
+                        {profileData.userId || "Not available"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-300 flex items-center">
+                      <Mail className="mr-2 h-4 w-4 text-gray-400" />
                       Email Address
                     </Label>
-                    <div className="h-12 px-4 bg-gray-50 rounded-xl flex items-center text-gray-700 font-medium">
+                    <div className="h-12 px-4 bg-gray-700 rounded-xl flex items-center text-gray-200 font-medium border border-gray-600">
                       {profileData.email}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-medium text-gray-700 flex items-center">
-                      <Phone className="mr-2 h-4 w-4" />
+                    <Label htmlFor="phone" className="text-sm font-medium text-gray-300 flex items-center">
+                      <Phone className="mr-2 h-4 w-4 text-gray-400" />
                       Phone Number
                     </Label>
                     {isEditing ? (
@@ -442,47 +521,47 @@ const Profile = () => {
                         id="phone"
                         value={profileData.phone}
                         onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                        className="h-12 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                        className="h-12 rounded-xl border-2 border-gray-600 bg-gray-700 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
                       />
                     ) : (
-                      <div className="h-12 px-4 bg-gray-50 rounded-xl flex items-center text-gray-700 font-medium">
+                      <div className="h-12 px-4 bg-gray-700 rounded-xl flex items-center text-gray-200 font-medium border border-gray-600">
                         {profileData.phone}
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="location" className="text-sm font-medium text-gray-700 flex items-center">
-                      <MapPin className="mr-2 h-4 w-4" />
+                    <Label htmlFor="location" className="text-sm font-medium text-gray-300 flex items-center">
+                      <MapPin className="mr-2 h-4 w-4 text-gray-400" />
                       Location
                     </Label>
                     {isEditing ? (
-                      <Input
-                        id="location"
+                      <AddressInput
                         value={profileData.location}
-                        onChange={(e) => setProfileData({...profileData, location: e.target.value})}
-                        className="h-12 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                        onChange={(value) => setProfileData({...profileData, location: value})}
+                        placeholder="Enter your location"
+                        className="h-12"
                       />
                     ) : (
-                      <div className="h-12 px-4 bg-gray-50 rounded-xl flex items-center text-gray-700 font-medium">
+                      <div className="h-12 px-4 bg-gray-700 rounded-xl flex items-center text-gray-200 font-medium border border-gray-600">
                         {profileData.location}
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="joinDate" className="text-sm font-medium text-gray-700 flex items-center">
-                      <Calendar className="mr-2 h-4 w-4" />
+                    <Label htmlFor="joinDate" className="text-sm font-medium text-gray-300 flex items-center">
+                      <Calendar className="mr-2 h-4 w-4 text-gray-400" />
                       Member Since
                     </Label>
-                    <div className="h-12 px-4 bg-gray-50 rounded-xl flex items-center text-gray-700 font-medium">
+                    <div className="h-12 px-4 bg-gray-700 rounded-xl flex items-center text-gray-200 font-medium border border-gray-600">
                       {profileData.joinDate}
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="bio" className="text-sm font-medium text-gray-300">
                     Bio
                   </Label>
                   {isEditing ? (
@@ -491,10 +570,10 @@ const Profile = () => {
                       value={profileData.bio}
                       onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
                       rows={4}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 resize-none"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-600 bg-gray-700 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 resize-none"
                     />
                   ) : (
-                    <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-700 min-h-[80px] flex items-start">
+                    <div className="px-4 py-3 bg-gray-700 rounded-xl text-gray-200 min-h-[80px] flex items-start border border-gray-600">
                       {profileData.bio}
                     </div>
                   )}
@@ -505,33 +584,33 @@ const Profile = () => {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Account Status */}
-              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out">
-                <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 p-6">
-                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-                    <Shield className="mr-2 h-5 w-5 text-green-600" />
+              <Card className="shadow-xl border-0 bg-gray-800/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out glow-border">
+                <CardHeader className="bg-gradient-to-r from-green-900 to-emerald-800 p-6">
+                  <CardTitle className="text-xl font-bold text-white flex items-center">
+                    <Shield className="mr-2 h-5 w-5 text-green-400" />
                     Account Status
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Status</span>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                    <span className="text-sm text-gray-300">Status</span>
+                    <span className="px-3 py-1 bg-green-900 text-green-300 rounded-full text-sm font-medium">
                       Active
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Plan</span>
+                    <span className="text-sm text-gray-300">Plan</span>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      userPlan === 'pro+' ? 'bg-purple-100 text-purple-700' :
-                      userPlan === 'pro' ? 'bg-blue-100 text-blue-700' :
-                      'bg-gray-100 text-gray-700'
+                      userPlan === 'pro+' ? 'bg-purple-900 text-purple-300' :
+                      userPlan === 'pro' ? 'bg-blue-900 text-blue-300' :
+                      'bg-gray-700 text-gray-300'
                     }`}>
                       {userPlan === 'pro+' ? 'Pro+' : userPlan === 'pro' ? 'Pro' : 'Free'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Files Processed</span>
-                    <span className="text-sm font-medium text-gray-800">
+                    <span className="text-sm text-gray-300">Files Processed</span>
+                    <span className="text-sm font-medium text-white">
                       {(usageSummary?.usage.pdfUploads || 0) + (usageSummary?.usage.pdfReorder || 0) + (usageSummary?.usage.pdfCompress || 0)}
                     </span>
                   </div>
@@ -539,30 +618,30 @@ const Profile = () => {
               </Card>
 
               {/* Usage Summary */}
-              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out">
-                <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6">
-                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-                    <Shield className="mr-2 h-5 w-5 text-orange-600" />
+              <Card className="shadow-xl border-0 bg-gray-800/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out glow-border">
+                <CardHeader className="bg-gradient-to-r from-orange-900 to-yellow-800 p-6">
+                  <CardTitle className="text-xl font-bold text-white flex items-center">
+                    <Shield className="mr-2 h-5 w-5 text-orange-400" />
                     Usage Summary
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
                   <div className="grid grid-cols-1 gap-3">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm text-gray-600">PDF Uploads</span>
-                      <span className="text-sm font-medium text-gray-800">
+                    <div className="flex items-center justify-between p-3 bg-gray-700 rounded-lg border border-gray-600">
+                      <span className="text-sm text-gray-300">PDF Uploads</span>
+                      <span className="text-sm font-medium text-white">
                         {(usageSummary?.usage.pdfUploads || 0)}/{(usageSummary?.limits.pdfUploads === -1 ? '∞' : usageSummary?.limits.pdfUploads || 0)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm text-gray-600">PDF Reorders</span>
-                      <span className="text-sm font-medium text-gray-800">
+                    <div className="flex items-center justify-between p-3 bg-gray-700 rounded-lg border border-gray-600">
+                      <span className="text-sm text-gray-300">PDF Reorders</span>
+                      <span className="text-sm font-medium text-white">
                         {(usageSummary?.usage.pdfReorder || 0)}/{(usageSummary?.limits.pdfReorder === -1 ? '∞' : usageSummary?.limits.pdfReorder || 0)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm text-gray-600">PDF Compression</span>
-                      <span className="text-sm font-medium text-gray-800">
+                    <div className="flex items-center justify-between p-3 bg-gray-700 rounded-lg border border-gray-600">
+                      <span className="text-sm text-gray-300">PDF Compression</span>
+                      <span className="text-sm font-medium text-white">
                         {(usageSummary?.usage.pdfCompress || 0)}/{(usageSummary?.limits.pdfCompress === -1 ? '∞' : usageSummary?.limits.pdfCompress || 0)}
                       </span>
                     </div>
@@ -571,9 +650,9 @@ const Profile = () => {
               </Card>
 
               {/* Quick Actions */}
-              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out">
-                <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 p-6">
-                  <CardTitle className="text-xl font-bold text-gray-800">Quick Actions</CardTitle>
+              <Card className="shadow-xl border-0 bg-gray-800/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 ease-out glow-border">
+                <CardHeader className="bg-gradient-to-r from-purple-900 to-pink-800 p-6">
+                  <CardTitle className="text-xl font-bold text-white">Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
                   <Button
@@ -593,7 +672,7 @@ const Profile = () => {
                   <Button
                     onClick={handleLogout}
                     variant="outline"
-                    className="w-full border-red-200 text-red-600 hover:bg-red-50 rounded-xl hover:scale-105 transition-all duration-300"
+                    className="w-full border-red-500 text-red-400 hover:bg-red-900/30 hover:border-red-400 rounded-xl hover:scale-105 transition-all duration-300"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
