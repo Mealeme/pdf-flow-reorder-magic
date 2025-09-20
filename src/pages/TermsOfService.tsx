@@ -91,180 +91,339 @@ const TermsOfService = () => {
           {/* Terms Content */}
           <Card className="shadow-2xl border-0 bg-gray-800/80 backdrop-blur-sm rounded-3xl mb-8 overflow-hidden glow-border">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
-              <CardTitle className="text-2xl font-bold mb-2">📋 Terms & Conditions</CardTitle>
+              <CardTitle className="text-2xl font-bold mb-2">📋 Terms of Service</CardTitle>
               <CardDescription className="text-blue-100 text-lg">
-                Last updated: December 2024
+                Last updated September 20, 2025
               </CardDescription>
             </div>
             <CardContent className="p-8">
               <div className="space-y-8">
+                {/* Agreement to Legal Terms */}
                 <ScrollColorText colors={['text-gray-300', 'text-blue-400', 'text-indigo-400', 'text-purple-400']}>
                   <section>
                     <h3 className="text-xl font-semibold mb-4 flex items-center">
                       <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
-                      Acceptance of Terms
+                      Agreement to Our Legal Terms
                     </h3>
-                    <p className="leading-relaxed">
-                      By accessing and using NewMicro ("the Service"), you accept and agree to be bound by the terms and provision of this agreement.
-                      If you do not agree to abide by the above, please do not use this service.
+                    <p className="leading-relaxed mb-4">
+                      We are NewMicro ("Company," "we," "us," "our"), a company registered in India at Amrut Garden, Ashok Nagar Nashik, 422008, Nashik, Maharastra 422008.
+                    </p>
+                    <p className="leading-relaxed mb-4">
+                      We operate the website https://newmicro.live (the "Site"), as well as any other related products and services that refer or link to these legal terms (the "Legal Terms") (collectively, the "Services").
+                    </p>
+                    <p className="leading-relaxed mb-4">
+                      These Legal Terms constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you"), and NewMicro, concerning your access to and use of the Services. You agree that by accessing the Services, you have read, understood, and agreed to be bound by all of these Legal Terms. <strong>IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.</strong>
                     </p>
                   </section>
                 </ScrollColorText>
 
+                {/* Table of Contents */}
                 <ScrollColorText colors={['text-gray-300', 'text-cyan-400', 'text-teal-400', 'text-green-400']}>
                   <section>
                     <h3 className="text-xl font-semibold mb-4 flex items-center">
                       <FileText className="mr-2 h-5 w-5 text-blue-600" />
-                      Description of Service
+                      Table of Contents
                     </h3>
-                    <p className="leading-relaxed mb-4">
-                      NewMicro provides free, web-based PDF manipulation tools including:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
-                      <li>PDF page reordering with custom sequences</li>
-                      <li>PDF compression and optimization</li>
-                      <li>PDF to various format conversion</li>
-                      <li>Photo to image format conversion</li>
-                    </ul>
-                    <p className="leading-relaxed mt-4">
-                      All tools are provided through free or paid plans with no hidden costs or premium features.
-                    </p>
-                  </section>
-                </ScrollColorText>
-
-                <ScrollColorText colors={['text-gray-300', 'text-emerald-400', 'text-lime-400', 'text-green-400']}>
-                  <section>
-                    <h3 className="text-xl font-semibold mb-4 flex items-center">
-                      <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
-                      Free Service Commitment
-                    </h3>
-                    <div className="bg-green-900/30 p-6 rounded-2xl border border-green-800/50">
-                      <p className="text-green-200 font-medium mb-3">Our Promise:</p>
-                      <ul className="list-disc list-inside text-green-300 space-y-1 ml-4">
-                        <li>All features are available through free or paid plans</li>
-                        <li>No subscription fees or hidden costs</li>
-                        <li>No premium features locked behind paywalls</li>
-                        <li>Unlimited usage with no restrictions</li>
-                        <li>No file size or page count limits</li>
-                      </ul>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <ol className="list-decimal list-inside space-y-1">
+                          <li>Our Services</li>
+                          <li>Intellectual Property Rights</li>
+                          <li>User Representations</li>
+                          <li>User Registration</li>
+                          <li>Products</li>
+                          <li>Purchases and Payment</li>
+                          <li>Subscriptions</li>
+                          <li>Refunds Policy</li>
+                          <li>Prohibited Activities</li>
+                          <li>User Generated Contributions</li>
+                          <li>Contribution License</li>
+                          <li>Services Management</li>
+                          <li>Privacy Policy</li>
+                        </ol>
+                      </div>
+                      <div>
+                        <ol className="list-decimal list-inside space-y-1" start={14}>
+                          <li>Term and Termination</li>
+                          <li>Modifications and Interruptions</li>
+                          <li>Governing Law</li>
+                          <li>Dispute Resolution</li>
+                          <li>Corrections</li>
+                          <li>Disclaimer</li>
+                          <li>Limitations of Liability</li>
+                          <li>Indemnification</li>
+                          <li>User Data</li>
+                          <li>Electronic Communications</li>
+                          <li>Miscellaneous</li>
+                          <li>Contact Us</li>
+                        </ol>
+                      </div>
                     </div>
                   </section>
                 </ScrollColorText>
 
+                {/* 1. Our Services */}
+                <ScrollColorText colors={['text-gray-300', 'text-emerald-400', 'text-lime-400', 'text-green-400']}>
+                  <section>
+                    <h3 className="text-xl font-semibold mb-4">1. Our Services</h3>
+                    <p className="leading-relaxed">
+                      The information provided when using the Services is not intended for distribution to or use by any person or entity in any jurisdiction or country where such distribution or use would be contrary to law or regulation or which would subject us to any registration requirement within such jurisdiction or country. Accordingly, those persons who choose to access the Services from other locations do so on their own initiative and are solely responsible for compliance with local laws, if and to the extent local laws are applicable.
+                    </p>
+                  </section>
+                </ScrollColorText>
+
+                {/* 2. Intellectual Property Rights */}
+                <ScrollColorText colors={['text-gray-300', 'text-violet-400', 'text-purple-400', 'text-fuchsia-400']}>
+                  <section>
+                    <h3 className="text-xl font-semibold mb-4">2. Intellectual Property Rights</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-violet-300">Our Intellectual Property</h4>
+                        <p className="leading-relaxed mb-4">
+                          We are the owner or the licensee of all intellectual property rights in our Services, including all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics in the Services (collectively, the "Content"), as well as the trademarks, service marks, and logos contained therein (the "Marks").
+                        </p>
+                        <p className="leading-relaxed mb-4">
+                          Our Content and Marks are protected by copyright and trademark laws (and various other intellectual property rights and unfair competition laws) and treaties around the world. The Content and Marks are provided in or through the Services "AS IS" for your personal, non-commercial use only.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-purple-300">Your Use of Our Services</h4>
+                        <p className="leading-relaxed mb-4">
+                          Subject to your compliance with these Legal Terms, including the "PROHIBITED ACTIVITIES" section below, we grant you a non-exclusive, non-transferable, revocable license to:
+                        </p>
+                        <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
+                          <li>access the Services; and</li>
+                          <li>download or print a copy of any portion of the Content to which you have properly gained access,</li>
+                        </ul>
+                        <p className="leading-relaxed">
+                          solely for your personal, non-commercial use.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </ScrollColorText>
+
+                {/* 3. User Representations */}
+                <ScrollColorText colors={['text-gray-300', 'text-rose-400', 'text-pink-400', 'text-red-400']}>
+                  <section>
+                    <h3 className="text-xl font-semibold mb-4">3. User Representations</h3>
+                    <p className="leading-relaxed mb-4">
+                      By using the Services, you represent and warrant that:
+                    </p>
+                    <ul className="list-decimal list-inside space-y-2 ml-4">
+                      <li>all registration information you submit will be true, accurate, current, and complete</li>
+                      <li>you will maintain the accuracy of such information and promptly update such registration information as necessary</li>
+                      <li>you have the legal capacity and you agree to comply with these Legal Terms</li>
+                      <li>you are not a minor in the jurisdiction in which you reside, or if a minor, you have received parental permission to use the Services</li>
+                      <li>you will not access the Services through automated or non-human means, whether through a bot, script or otherwise</li>
+                      <li>you will not use the Services for any illegal or unauthorized purpose</li>
+                      <li>your use of the Services will not violate any applicable law or regulation</li>
+                    </ul>
+                  </section>
+                </ScrollColorText>
+
+                {/* 4. User Registration */}
+                <ScrollColorText colors={['text-gray-300', 'text-slate-400', 'text-zinc-400', 'text-stone-400']}>
+                  <section>
+                    <h3 className="text-xl font-semibold mb-4">4. User Registration</h3>
+                    <p className="leading-relaxed">
+                      You may be required to register to use the Services. You agree to keep your password confidential and will be responsible for all use of your account and password. We reserve the right to remove, reclaim, or change a username you select if we determine, in our sole discretion, that such username is inappropriate, obscene, or otherwise objectionable.
+                    </p>
+                  </section>
+                </ScrollColorText>
+
+                {/* 5. Products & 6. Purchases and Payment */}
+                <ScrollColorText colors={['text-gray-300', 'text-yellow-400', 'text-orange-400', 'text-amber-400']}>
+                  <section>
+                    <h3 className="text-xl font-semibold mb-4">5. Products & 6. Purchases and Payment</h3>
+                    <div className="space-y-4">
+                      <p className="leading-relaxed">
+                        All products are subject to availability. We reserve the right to discontinue any products at any time for any reason. Prices for all products are subject to change.
+                      </p>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-yellow-300">Payment Methods</h4>
+                        <p className="leading-relaxed mb-2">We accept the following forms of payment:</p>
+                        <ul className="list-disc list-inside ml-4">
+                          <li>Razorpay Payment Gateway</li>
+                        </ul>
+                      </div>
+                      <p className="leading-relaxed">
+                        You agree to provide current, complete, and accurate purchase and account information for all purchases made via the Services. All payments shall be in INR. Sales tax will be added to the price of purchases as deemed required by us.
+                      </p>
+                    </div>
+                  </section>
+                </ScrollColorText>
+
+                {/* 7. Subscriptions & 8. Refunds Policy */}
+                <ScrollColorText colors={['text-gray-300', 'text-indigo-400', 'text-blue-400', 'text-cyan-400']}>
+                  <section>
+                    <h3 className="text-xl font-semibold mb-4">7. Subscriptions & 8. Refunds Policy</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-indigo-300">Billing and Renewal</h4>
+                        <p className="leading-relaxed text-red-400 font-medium">No refund will be issued.</p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-blue-300">Free Trial</h4>
+                        <p className="leading-relaxed">
+                          We offer a 1-day free trial to new users who register with the Services. The account will be charged according to the user's chosen subscription at the end of the free trial.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-cyan-300">Cancellation</h4>
+                        <p className="leading-relaxed">
+                          You can cancel your subscription at any time by contacting us using the contact information provided below. Your cancellation will take effect at the end of the current paid term.
+                        </p>
+                      </div>
+                      <div className="bg-red-900/30 p-4 rounded-xl border border-red-800/50">
+                        <h4 className="text-lg font-medium mb-2 text-red-300">Refunds Policy</h4>
+                        <p className="leading-relaxed text-red-200">
+                          All sales are final and no refund will be issued.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </ScrollColorText>
+
+                {/* 9. Prohibited Activities */}
                 <ScrollColorText colors={['text-gray-700', 'text-orange-700', 'text-amber-700', 'text-yellow-700']}>
                   <section>
                     <h3 className="text-xl font-semibold mb-4 flex items-center">
                       <AlertTriangle className="mr-2 h-5 w-5 text-orange-600" />
-                      User Responsibilities
+                      9. Prohibited Activities
                     </h3>
                     <p className="leading-relaxed mb-4">
-                      As a user of our service, you agree to:
+                      You may not access or use the Services for any purpose other than that for which we make the Services available. As a user of the Services, you agree not to:
                     </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
-                      <li>Use the service only for lawful purposes</li>
-                      <li>Not upload files that contain malicious code or viruses</li>
-                      <li>Respect intellectual property rights of others</li>
-                      <li>Not attempt to reverse engineer or hack the service</li>
-                      <li>Not use the service for any commercial exploitation without permission</li>
+                    <ul className="list-disc list-inside space-y-2 text-sm">
+                      <li>Systematically retrieve data or other content from the Services to create or compile a collection, compilation, database, or directory without written permission from us</li>
+                      <li>Trick, defraud, or mislead us and other users, especially in any attempt to learn sensitive account information such as user passwords</li>
+                      <li>Circumvent, disable, or otherwise interfere with security-related features of the Services</li>
+                      <li>Disparage, tarnish, or otherwise harm, in our opinion, us and/or the Services</li>
+                      <li>Use any information obtained from the Services in order to harass, abuse, or harm another person</li>
+                      <li>Make improper use of our support services or submit false reports of abuse or misconduct</li>
+                      <li>Use the Services in a manner inconsistent with any applicable laws or regulations</li>
+                      <li>Engage in unauthorized framing of or linking to the Services</li>
+                      <li>Upload or transmit viruses, Trojan horses, or other material that interferes with any party's uninterrupted use and enjoyment of the Services</li>
+                      <li>Engage in any automated use of the system, such as using scripts to send comments or messages</li>
+                      <li>Delete the copyright or other proprietary rights notice from any Content</li>
+                      <li>Attempt to impersonate another user or person or use the username of another user</li>
+                      <li>Interfere with, disrupt, or create an undue burden on the Services or the networks or services connected to the Services</li>
+                      <li>Copy or adapt the Services' software, including but not limited to Flash, PHP, HTML, JavaScript, or other code</li>
+                      <li>Use the Services as part of any effort to compete with us or otherwise use the Services for any revenue-generating endeavor or commercial enterprise</li>
                     </ul>
                   </section>
                 </ScrollColorText>
 
-                <ScrollColorText colors={['text-gray-300', 'text-violet-400', 'text-purple-400', 'text-fuchsia-400']}>
-                  <section>
-                    <h3 className="text-xl font-semibold mb-4">Privacy & Data</h3>
-                    <p className="leading-relaxed mb-4">
-                      Your privacy is paramount. Our service operates entirely client-side, meaning:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
-                      <li><strong>No Data Collection:</strong> We do not collect, store, or process any personal information</li>
-                      <li><strong>Client-Side Processing:</strong> All file processing happens in your browser</li>
-                      <li><strong>No File Storage:</strong> Your files never leave your device</li>
-                      <li><strong>No Tracking:</strong> We don't use cookies or tracking technologies</li>
-                    </ul>
-                    <p className="leading-relaxed mt-4">
-                      For detailed information, please review our <a href="/privacy-policy" className="text-blue-600 hover:text-blue-800 underline">Privacy Policy</a>.
-                    </p>
-                  </section>
-                </ScrollColorText>
-
-                <ScrollColorText colors={['text-gray-300', 'text-rose-400', 'text-pink-400', 'text-red-400']}>
-                  <section>
-                    <h3 className="text-xl font-semibold mb-4">Intellectual Property</h3>
-                    <p className="leading-relaxed mb-4">
-                      The service and its original content, features, and functionality are owned by NewMicro and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
-                    </p>
-                    <p className="leading-relaxed">
-                      Users retain full ownership of their uploaded files and processed results.
-                    </p>
-                  </section>
-                </ScrollColorText>
-
-                <ScrollColorText colors={['text-gray-300', 'text-slate-400', 'text-zinc-400', 'text-stone-400']}>
-                  <section>
-                    <h3 className="text-xl font-semibold mb-4">Limitation of Liability</h3>
-                    <p className="leading-relaxed mb-4">
-                      In no event shall NewMicro, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
-                      <li>Your use or inability to use the service</li>
-                      <li>Any changes made to the service</li>
-                      <li>Any permanent or temporary cessation of the service</li>
-                      <li>Deletion, corruption, or failure to store any content</li>
-                    </ul>
-                  </section>
-                </ScrollColorText>
-
-                <ScrollColorText colors={['text-gray-300', 'text-neutral-400', 'text-gray-400', 'text-gray-500']}>
-                  <section>
-                    <h3 className="text-xl font-semibold mb-4">Service Availability</h3>
-                    <p className="leading-relaxed mb-4">
-                      We strive to maintain high service availability, but we do not guarantee:
-                    </p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
-                      <li>Uninterrupted or error-free service</li>
-                      <li>Immediate resolution of technical issues</li>
-                      <li>Compatibility with all devices or browsers</li>
-                      <li>Availability during maintenance periods</li>
-                    </ul>
-                    <p className="leading-relaxed mt-4">
-                      We will make reasonable efforts to notify users of any planned maintenance or service interruptions.
-                    </p>
-                  </section>
-                </ScrollColorText>
-
-                <ScrollColorText colors={['text-gray-300', 'text-indigo-400', 'text-blue-400', 'text-cyan-400']}>
-                  <section>
-                    <h3 className="text-xl font-semibold mb-4">Modifications to Terms</h3>
-                    <p className="leading-relaxed">
-                      We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on this page.
-                      Your continued use of the service after any changes constitutes acceptance of the new terms.
-                      We encourage you to review these terms periodically.
-                    </p>
-                  </section>
-                </ScrollColorText>
-
+                {/* 10-13. Additional Sections */}
                 <ScrollColorText colors={['text-gray-300', 'text-teal-400', 'text-emerald-400', 'text-green-400']}>
                   <section>
-                    <h3 className="text-xl font-semibold mb-4">Governing Law</h3>
-                    <p className="leading-relaxed">
-                      These terms shall be governed by and construed in accordance with the laws of the jurisdiction in which NewMicro operates,
-                      without regard to its conflict of law provisions.
-                    </p>
+                    <h3 className="text-xl font-semibold mb-4">10-13. User Contributions, License, Services Management & Privacy</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-teal-300">User Generated Contributions</h4>
+                        <p className="leading-relaxed text-sm">
+                          The Services does not offer users to submit or post content. When you create or make available any Contributions, you represent and warrant that your Contributions do not violate any third party rights and comply with all applicable laws.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-emerald-300">Services Management</h4>
+                        <p className="leading-relaxed text-sm">
+                          We reserve the right, but not the obligation, to monitor the Services for violations of these Legal Terms and take appropriate legal action against anyone who violates these terms.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-green-300">Privacy Policy</h4>
+                        <p className="leading-relaxed text-sm">
+                          We care about data privacy and security. Please review our Privacy Policy: <a href="https://newmicro.live/privacy-policy" className="text-blue-400 hover:text-blue-300 underline">https://newmicro.live/privacy-policy</a>. The Services are hosted in India.
+                        </p>
+                      </div>
+                    </div>
                   </section>
                 </ScrollColorText>
 
-                <ScrollColorText colors={['text-gray-300', 'text-orange-400', 'text-amber-400', 'text-yellow-400']}>
+                {/* 14-17. Terms, Modifications, Governing Law, Dispute Resolution */}
+                <ScrollColorText colors={['text-gray-300', 'text-purple-400', 'text-violet-400', 'text-indigo-400']}>
                   <section>
-                    <h3 className="text-xl font-semibold mb-4">Contact Information</h3>
-                    <p className="leading-relaxed mb-4">
-                      If you have any questions about these Terms of Service, please contact us:
-                    </p>
-                    <div className="bg-gray-800/60 p-6 rounded-2xl border border-gray-700/50">
-                      <p className="text-gray-300">
-                        <strong className="text-gray-200">Email:</strong> <span className="text-blue-300">legal@newmicro.com</span><br />
-                        <strong className="text-gray-200">Website:</strong> <a href="/footer-info" className="text-blue-400 hover:text-blue-300 underline transition-colors duration-200">Contact & Support Page</a>
-                      </p>
+                    <h3 className="text-xl font-semibold mb-4">14-17. Termination, Modifications, Governing Law & Disputes</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-purple-300">Term and Termination</h4>
+                        <p className="leading-relaxed text-sm">
+                          These Legal Terms shall remain in full force and effect while you use the Services. We reserve the right to deny access to and use of the Services to any person for any reason or for no reason, including for breach of any representation, warranty, or covenant contained in these Legal Terms.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-violet-300">Modifications and Interruptions</h4>
+                        <p className="leading-relaxed text-sm">
+                          We reserve the right to change, modify, or remove the contents of the Services at any time or for any reason at our sole discretion without notice. We cannot guarantee the Services will be available at all times.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-indigo-300">Governing Law</h4>
+                        <p className="leading-relaxed text-sm">
+                          These Legal Terms shall be governed by and defined following the laws of India. NewMicro and yourself irrevocably consent that the courts of India shall have exclusive jurisdiction to resolve any dispute which may arise in connection with these Legal Terms.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </ScrollColorText>
+
+                {/* 18-21. Corrections, Disclaimer, Limitations, Indemnification */}
+                <ScrollColorText colors={['text-gray-300', 'text-red-400', 'text-orange-400', 'text-yellow-400']}>
+                  <section>
+                    <h3 className="text-xl font-semibold mb-4">18-21. Corrections, Disclaimer, Limitations & Indemnification</h3>
+                    <div className="space-y-4">
+                      <div className="bg-red-900/30 p-4 rounded-xl border border-red-800/50">
+                        <h4 className="text-lg font-medium mb-2 text-red-300">Disclaimer</h4>
+                        <p className="leading-relaxed text-sm text-red-200">
+                          THE SERVICES ARE PROVIDED ON AN AS-IS AND AS-AVAILABLE BASIS. YOU AGREE THAT YOUR USE OF THE SERVICES WILL BE AT YOUR SOLE RISK. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH THE SERVICES.
+                        </p>
+                      </div>
+                      <div className="bg-orange-900/30 p-4 rounded-xl border border-orange-800/50">
+                        <h4 className="text-lg font-medium mb-2 text-orange-300">Limitations of Liability</h4>
+                        <p className="leading-relaxed text-sm text-orange-200">
+                          IN NO EVENT WILL WE OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY DIRECT, INDIRECT, CONSEQUENTIAL, EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE SERVICES.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-yellow-300">Indemnification</h4>
+                        <p className="leading-relaxed text-sm">
+                          You agree to defend, indemnify, and hold us harmless from and against any loss, damage, liability, claim, or demand made by any third party due to or arising out of your use of the Services or breach of these Legal Terms.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </ScrollColorText>
+
+                {/* 22-25. Final Sections */}
+                <ScrollColorText colors={['text-gray-300', 'text-blue-400', 'text-cyan-400', 'text-teal-400']}>
+                  <section>
+                    <h3 className="text-xl font-semibold mb-4">22-25. User Data, Electronic Communications & Contact</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-blue-300">User Data</h4>
+                        <p className="leading-relaxed text-sm">
+                          We will maintain certain data that you transmit to the Services for the purpose of managing the performance of the Services. You are solely responsible for all data that you transmit or that relates to any activity you have undertaken using the Services.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-cyan-300">Electronic Communications</h4>
+                        <p className="leading-relaxed text-sm">
+                          Visiting the Services, sending us emails, and completing online forms constitute electronic communications. You consent to receive electronic communications and agree that all agreements, notices, disclosures, and other communications satisfy any legal requirement that such communication be in writing.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-medium mb-2 text-teal-300">Contact Us</h4>
+                        <div className="bg-gray-800/60 p-4 rounded-xl border border-gray-700/50">
+                          <p className="text-sm">
+                            <strong>NewMicro</strong><br />
+                            Amrut Garden, Ashok Nagar Nashik, 422008<br />
+                            Nashik, Maharastra 422008, India<br />
+                            <strong>Email:</strong> <span className="text-blue-300">newmicroofficial@gmail.com</span>
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </section>
                 </ScrollColorText>

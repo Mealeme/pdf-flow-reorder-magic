@@ -234,8 +234,8 @@ const FooterInfo = () => {
                       <CheckCircle className="h-4 w-4 text-green-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white">100% Free Forever</h4>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm">No hidden costs, no premium features, no subscriptions</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-white">Free Forever</h4>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">hidden costs, premium features, and subscriptions is there</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
@@ -243,7 +243,7 @@ const FooterInfo = () => {
                       <CheckCircle className="h-4 w-4 text-green-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white">Unlimited Usage</h4>
+                      <h4 className="font-semibold text-gray-800 dark:text-white">limited Usage For Free User</h4>
                       <p className="text-gray-600 dark:text-gray-300 text-sm">Process as many files as you need, whenever you need them</p>
                     </div>
                   </div>
@@ -252,7 +252,7 @@ const FooterInfo = () => {
                       <CheckCircle className="h-4 w-4 text-green-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white">No File Size Limits</h4>
+                      <h4 className="font-semibold text-gray-800 dark:text-white">File Size Limits</h4>
                       <p className="text-gray-600 dark:text-gray-300 text-sm">Handle documents of any size with our powerful engine</p>
                     </div>
                   </div>
