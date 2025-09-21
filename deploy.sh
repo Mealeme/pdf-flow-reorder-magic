@@ -82,6 +82,15 @@ print_status "Setting proper permissions..."
 sudo chown -R www-data:www-data "$WEB_DIR"
 sudo chmod -R 755 "$WEB_DIR"
 
+# Deploy backend
+print_status "Deploying backend..."
+if [ -f "deploy-backend.sh" ]; then
+    chmod +x deploy-backend.sh
+    ./deploy-backend.sh
+else
+    print_warning "deploy-backend.sh not found, skipping backend deployment"
+fi
+
 # Restart web server
 print_status "Restarting web server..."
 if systemctl is-active --quiet nginx; then
@@ -98,8 +107,9 @@ fi
 print_status "Cleaning up old backups..."
 sudo find /var/www -name "html.backup.*" -type d | sort | head -n -5 | sudo xargs rm -rf 2>/dev/null || true
 
-print_status "✅ Deployment completed successfully!"
-print_status "Your site should now be live at: https://newmicro.live"
+print_status "✅ Full deployment completed successfully!"
+print_status "Frontend: https://newmicro.live"
+print_status "Backend API: https://newmicro.live/api/"
 
 # Show deployment info
 echo ""

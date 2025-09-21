@@ -42,15 +42,32 @@ sudo apt install -y git
 print_status "Installing Nginx..."
 sudo apt install -y nginx
 
-# Install PM2 for process management (optional)
+# Install PM2 for process management
 print_status "Installing PM2..."
 sudo npm install -g pm2
 
-# Create project directory
+# Create project directories
 print_status "Creating project directories..."
 sudo mkdir -p /var/www/pdf-flow-reorder-magic
 sudo mkdir -p /var/www/html
+sudo mkdir -p /var/www/pdf-flow-reorder-magic/logs
 sudo chown -R $USER:$USER /var/www
+
+# Create .env file template
+print_status "Creating environment file template..."
+cat > /var/www/pdf-flow-reorder-magic/.env << EOF
+# AWS Configuration
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your_access_key_here
+AWS_SECRET_ACCESS_KEY=your_secret_key_here
+
+# Server Configuration
+PORT=3000
+NODE_ENV=production
+
+# Domain
+DOMAIN=newmicro.live
+EOF
 
 # Configure Nginx
 print_status "Configuring Nginx..."
@@ -60,6 +77,19 @@ server {
     server_name newmicro.live www.newmicro.live;
     root /var/www/html;
     index index.html;
+
+    # Proxy API requests to backend
+    location /api/ {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
 
     location / {
         try_files \$uri \$uri/ /index.html;
@@ -100,8 +130,9 @@ sudo ufw allow 'Nginx Full'
 sudo ufw allow ssh
 sudo ufw --force enable
 
-# Make deploy script executable
+# Make deploy scripts executable
 chmod +x deploy.sh
+chmod +x deploy-backend.sh
 
 print_status "✅ Server setup completed!"
 echo ""
